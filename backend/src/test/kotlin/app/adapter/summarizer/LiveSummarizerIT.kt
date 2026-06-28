@@ -1,0 +1,72 @@
+package app.adapter.summarizer
+
+import app.adapter.out.summarizer.HttpAnthropicClient
+import app.adapter.out.summarizer.LlmChatClient
+import app.adapter.out.summarizer.LlmEditionSummarizer
+import app.adapter.out.summarizer.OpenAiCompatChatClient
+import app.domain.model.Language
+import app.domain.model.RawArticle
+import app.domain.port.out.SummarizeInput
+import app.domain.service.ContentQuality
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assumptions.assumeTrue
+import org.junit.jupiter.api.Test
+import java.time.Instant
+
+/**
+ * 실 LLM 연동 검증(라이브) — 제공사 무관. 키가 있을 때만 실행되고, 없으면 건너뛴다.
+ * Docker/DB/Kafka 불필요 — 실제 요약 경로(프롬프트→LLM→JSON 파싱→ContentQuality)만 1회 호출.
+ *
+ * 우선순위: GLM_API_KEY 가 있으면 GLM(OpenAI 호환), 없으면 ANTHROPIC_API_KEY 로 Claude.
+ *   GLM:    GLM_API_KEY=... [GLM_BASE_URL=...] [GLM_MODEL=glm-4.6]
+ *   Claude: ANTHROPIC_API_KEY=... [ANTHROPIC_MODEL=claude-opus-4-8]
+ *
+ * 실행:  GLM_API_KEY=... GLM_MODEL=glm-4.6 ./gradlew cleanTest test --tests "app.adapter.summarizer.LiveSummarizerIT" -i
+ */
+class LiveSummarizerIT {
+
+    private val om = ObjectMapper().registerKotlinModule()
+
+    @Test
+    fun `실제 LLM 호출로 EditionContent를 생성하고 품질을 통과한다`() {
+        val glmKey = System.getenv("GLM_API_KEY").orEmpty()
+        val claudeKey = System.getenv("ANTHROPIC_API_KEY").orEmpty()
+        assumeTrue(glmKey.isNotBlank() || claudeKey.isNotBlank(), "GLM_API_KEY/ANTHROPIC_API_KEY 미설정 — 라이브 테스트 건너뜀")
+
+        val (provider, client) = when {
+            glmKey.isNotBlank() -> {
+                val base = System.getenv("GLM_BASE_URL")?.ifBlank { null } ?: "https://api.z.ai/api/paas/v4"
+                val model = System.getenv("GLM_MODEL")?.ifBlank { null } ?: "glm-5.2"
+                "GLM($model @ $base)" to OpenAiCompatChatClient(glmKey, base, model, 8192, om, disableThinking = true) as LlmChatClient
+            }
+            else -> {
+                val model = System.getenv("ANTHROPIC_MODEL")?.ifBlank { null } ?: "claude-opus-4-8"
+                "Claude($model)" to HttpAnthropicClient(claudeKey, model, 8192, om) as LlmChatClient
+            }
+        }
+        val summarizer = LlmEditionSummarizer(client, om)
+
+        // 정치+경제 2개 카테고리 → 교차 종합(crossInsight) 근거가 있으면 생성되는지도 함께 본다
+        val input = SummarizeInput(
+            categoryCodes = listOf("politics", "economy"),
+            language = Language.KO,
+            articles = listOf(
+                RawArticle("정부, 부동산 대출 규제 추가 검토", "https://news.example/politics/1", "예시일보", Language.KO, "politics", Instant.now()),
+                RawArticle("한국은행 기준금리 동결 결정", "https://news.example/economy/1", "예시경제", Language.KO, "economy", Instant.now()),
+                RawArticle("BOK holds base rate steady", "https://news.example/economy/2", "Example Wire", Language.EN, "economy", Instant.now()),
+            ),
+        )
+
+        val content = summarizer.summarize(input)
+
+        println("=== provider: $provider ===")
+        println(om.writerWithDefaultPrettyPrinter().writeValueAsString(content))
+
+        assertDoesNotThrow { ContentQuality.validate(content) }
+        val inputUrls = input.articles.map { it.url }.toSet()
+        check(content.items.isNotEmpty()) { "items 가 비어 있음" }
+        content.items.forEach { check(it.url in inputUrls) { "지어낸 URL 발견: ${it.url}" } }
+    }
+}

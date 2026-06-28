@@ -1,0 +1,74 @@
+name: deploy
+
+# main 푸시마다: 백엔드 테스트 → 백엔드·웹 이미지 빌드/푸시(GitHub Container Registry, GHCR)
+# 배포(쿠버네티스 적용)는 docs/deploy.md 참고 — 현재 수동 kubectl(자동화는 선택).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {} # 수동 실행도 허용
+
+jobs:
+  # 1) 백엔드 테스트 게이트(Testcontainers — ubuntu 러너에 Docker 내장)
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Run backend tests
+        working-directory: backend
+        run: |
+          chmod +x ./gradlew   # Windows에서 커밋된 래퍼 실행권한 보장
+          ./gradlew test --no-daemon
+
+  # 2) 이미지 빌드 & GHCR 푸시(백엔드 + 웹)
+  #    GHCR 은 GitHub 내장 인증을 쓰므로 별도 레지스트리 시크릿이 필요 없다(GITHUB_TOKEN 사용).
+  build-push:
+    needs: test-backend
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write          # GHCR 푸시 권한
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # GHCR 이미지 경로는 소문자만 허용 → 소유자명을 소문자로 정규화
+      - name: Compute lowercase owner
+        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+
+      - name: Build & push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER_LC }}/onebite-backend:latest
+            ghcr.io/${{ env.OWNER_LC }}/onebite-backend:${{ github.sha }}
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+
+      - name: Build & push web
+        uses: docker/build-push-action@v6
+        with:
+          context: ./web
+          push: true
+          tags: |
+            ghcr.io/${{ env.OWNER_LC }}/onebite-web:latest
+            ghcr.io/${{ env.OWNER_LC }}/onebite-web:${{ github.sha }}
+          # NEXT_PUBLIC_* 는 빌드 시 인라인되는 공개값 → 리포지토리 Variables 로 주입
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ vars.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+            NEXT_PUBLIC_KAKAO_REST_KEY=${{ vars.NEXT_PUBLIC_KAKAO_REST_KEY }}
+            NEXT_PUBLIC_NAVER_CLIENT_ID=${{ vars.NEXT_PUBLIC_NAVER_CLIENT_ID }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web

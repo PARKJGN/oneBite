@@ -1,0 +1,5 @@
+# onebite 전용 네임스페이스. 이미 존재하면 apply 해도 무해(멱등).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: onebite

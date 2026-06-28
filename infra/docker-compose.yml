@@ -1,0 +1,44 @@
+# oneBite 로컬 인프라 — PostgreSQL · Kafka · n8n (T005)
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: onebite
+      POSTGRES_USER: onebite
+      POSTGRES_PASSWORD: onebite
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.data/postgres:/var/lib/postgresql/data
+
+  kafka:
+    image: apache/kafka:3.8.0          # 테스트(Testcontainers)와 동일 이미지로 통일(KRaft)
+    environment:
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://localhost:9092"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+    ports:
+      - "9092:9092"
+
+  n8n:
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      N8N_PORT: "5678"
+      ONEBITE_API_URL: "http://host.docker.internal:8080"   # 컨테이너→호스트 앱(bootRun) 호출
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"                 # 노드 표현식에서 $env 접근 허용
+      ONEBITE_INTERNAL_TOKEN: "${ONEBITE_INTERNAL_TOKEN:-}" # /internal 공유 시크릿(infra/.env에서 주입)
+    volumes:
+      - ./.data/n8n:/home/node/.n8n
+    extra_hosts:
+      - "host.docker.internal:host-gateway"                 # Linux Docker 호환(Windows/Mac는 기본 제공)

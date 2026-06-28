@@ -1,0 +1,110 @@
+package app.application
+
+import app.domain.InvalidCredentialsException
+import app.domain.UsernameAlreadyExistsException
+import app.domain.model.User
+import app.domain.port.`in`.AuthUseCase
+import app.domain.port.`in`.LoginCommand
+import app.domain.port.`in`.LoginResult
+import app.domain.port.`in`.SignupCommand
+import app.domain.port.`in`.SignupResult
+import app.domain.port.`in`.TokenPair
+import app.domain.port.out.EmailSender
+import app.domain.port.out.LoginAttemptGuard
+import app.domain.port.out.PasswordHasher
+import app.domain.port.out.PasswordResetTokenStore
+import app.domain.port.out.RefreshTokenStore
+import app.domain.port.out.TokenIssuer
+import app.domain.port.out.UserRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+
+@Service
+class AuthService(
+    private val users: UserRepository,
+    private val hasher: PasswordHasher,
+    private val tokens: TokenIssuer,
+    private val resetTokens: PasswordResetTokenStore,
+    private val emailSender: EmailSender,
+    private val refreshTokens: RefreshTokenStore,
+    private val loginGuard: LoginAttemptGuard,
+) : AuthUseCase {
+
+    companion object {
+        val USERNAME_LENGTH = 4..20 // 아이디 길이 제약
+    }
+
+    @Transactional(readOnly = true)
+    override fun isUsernameAvailable(username: String): Boolean =
+        username.length in USERNAME_LENGTH && !users.existsByUsername(username)
+
+    @Transactional
+    override fun signup(cmd: SignupCommand): SignupResult {
+        require(cmd.username.length in USERNAME_LENGTH) { "아이디는 ${USERNAME_LENGTH.first}~${USERNAME_LENGTH.last}자여야 합니다" }
+        require(cmd.password.length >= 8) { "비밀번호는 8자 이상이어야 합니다" }
+        require(cmd.nickname.isNotBlank()) { "닉네임은 비어 있을 수 없습니다" }
+        if (users.existsByUsername(cmd.username)) throw UsernameAlreadyExistsException(cmd.username)
+
+        val saved = users.save(
+            User(
+                id = null,
+                username = cmd.username,
+                passwordHash = hasher.hash(cmd.password),
+                nickname = cmd.nickname,
+                recoveryEmail = cmd.recoveryEmail?.takeIf { it.isNotBlank() },
+            ),
+        )
+        return SignupResult(
+            userId = saved.id!!,
+            nickname = saved.nickname,
+            token = tokens.issue(saved.id),
+            refreshToken = refreshTokens.issue(saved.id), // 가입 즉시 자동 로그인
+        )
+    }
+
+    @Transactional // refresh 토큰 발급(INSERT)이 포함되어 읽기-쓰기
+    override fun login(cmd: LoginCommand): LoginResult {
+        loginGuard.assertNotLocked(cmd.username) // 잠겨 있으면 429(무차별 대입 방어)
+        val user = users.findByUsername(cmd.username) ?: run { loginGuard.recordFailure(cmd.username); throw InvalidCredentialsException() }
+        val hash = user.passwordHash ?: run { loginGuard.recordFailure(cmd.username); throw InvalidCredentialsException() } // 소셜 전용 계정
+        if (!hasher.matches(cmd.password, hash)) {
+            loginGuard.recordFailure(cmd.username)
+            throw InvalidCredentialsException()
+        }
+        loginGuard.recordSuccess(cmd.username) // 성공 시 실패 카운트 초기화
+        return LoginResult(
+            token = tokens.issue(user.id!!),
+            refreshToken = refreshTokens.issue(user.id),
+            userId = user.id,
+        )
+    }
+
+    @Transactional
+    override fun refresh(refreshToken: String): TokenPair {
+        val userId = refreshTokens.consume(refreshToken) ?: throw InvalidCredentialsException() // 회전: 옛 토큰 폐기
+        return TokenPair(token = tokens.issue(userId), refreshToken = refreshTokens.issue(userId))
+    }
+
+    @Transactional
+    override fun logout(refreshToken: String) {
+        refreshTokens.consume(refreshToken) // 제시한 refresh 토큰 폐기(반환값 무시)
+    }
+
+    @Transactional(readOnly = true)
+    override fun requestPasswordReset(username: String) {
+        // 존재 여부를 노출하지 않도록 항상 정상 반환. 복구 이메일이 있을 때만 발송.
+        val user = users.findByUsername(username) ?: return
+        val email = user.recoveryEmail ?: return
+        val token = resetTokens.issue(user.id!!)
+        emailSender.sendPasswordReset(email, token)
+    }
+
+    @Transactional
+    override fun confirmPasswordReset(resetToken: String, newPassword: String) {
+        require(newPassword.length >= 8) { "비밀번호는 8자 이상이어야 한다" }
+        val userId = resetTokens.consume(resetToken)
+            ?: throw IllegalArgumentException("유효하지 않거나 만료된 재설정 토큰입니다")
+        val user = users.findById(userId) ?: throw IllegalArgumentException("사용자를 찾을 수 없습니다")
+        users.save(user.copy(passwordHash = hasher.hash(newPassword)))
+    }
+}

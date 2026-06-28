@@ -1,0 +1,74 @@
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │ 이 파일의 리소스는 onebite 네임스페이스가 아니라                            │
+# │ 공용 인그레스가 사는 default 네임스페이스의 Ingress "ingress-host" 에 붙는다.│
+# │ (momsage/portfolio/www 등이 등록된 그 중앙 인그레스)                        │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+# [개념] 공용 인그레스는 "같은 네임스페이스"의 Service 로만 라우팅할 수 있다.
+# 실제 Pod 는 onebite 네임스페이스에 있으므로, 공용 ns 에 ExternalName(=DNS 별칭)
+# 서비스를 하나씩 만들어 onebite 의 서비스 FQDN 으로 연결(=다리)한다.
+# momsage 의 momsage-client-service / momsage-server-service 와 같은 역할.
+
+# ── 1) ExternalName: 웹(프론트) 다리 ──
+apiVersion: v1
+kind: Service
+metadata:
+  name: onebite-client-service
+  namespace: default               # ← 중앙 인그레스(ingress-host) 와 같은 네임스페이스
+spec:
+  type: ExternalName
+  externalName: web.onebite.svc.cluster.local    # onebite 네임스페이스의 web 서비스
+  ports:
+    - { port: 80, targetPort: 80 }
+---
+# ── 2) ExternalName: 백엔드(API) 다리 ──
+apiVersion: v1
+kind: Service
+metadata:
+  name: onebite-server-service
+  namespace: default
+spec:
+  type: ExternalName
+  externalName: backend.onebite.svc.cluster.local   # onebite 네임스페이스의 backend 서비스
+  ports:
+    - { port: 80, targetPort: 80 }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# [3) default/ingress-host 의 rules 에 추가할 host 블록]  — 기존 momsage 항목과 같은 포맷.
+#   kubectl -n default edit ingress ingress-host   (또는 소스 yaml 수정 후 apply)
+# rules: 리스트에 아래 두 덩어리를 그대로 끼워 넣는다.
+# 백엔드는 SERVER_SERVLET_CONTEXT_PATH=/api 로 /api 밑에서 서비스하므로 rewrite 불필요.
+#
+#   - host: onebite.jgbak-land.com
+#     http:
+#       paths:
+#       - path: /api                 # /api/* → 백엔드(컨텍스트패스 /api 그대로)
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: onebite-server-service
+#             port:
+#               number: 80
+#   - host: onebite.jgbak-land.com
+#     http:
+#       paths:
+#       - path: /                     # 나머지 전부 → 웹
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: onebite-client-service
+#             port:
+#               number: 80
+#
+# [4) spec.tls 리스트에도 추가] — HTTPS + 인증서 자동발급.
+#   ingress-host 에는 이미 cert-manager.io/cluster-issuer: prod-issuer (HTTP-01) 애너테이션이
+#   인그레스 전체에 걸려 있으므로, 아래 tls 항목만 추가하면 Let's Encrypt 인증서가 자동 발급된다.
+#   (단, 발급은 도메인이 클러스터 공인 IP 로 "이미 resolve + 80 포트 도달 가능"해야 성공 → DNS 먼저!)
+#
+#     tls:
+#     - hosts:
+#       - onebite.jgbak-land.com
+#       secretName: onebite-tls-secret      # 없으면 cert-manager 가 생성
+#
+# ※ onebite.jgbak-land.com = 이 앱 호스트(jgbak-land.com 의 서브도메인). 바꾸려면 이 문자열 치환(host 2곳 + tls 1곳).
+# ─────────────────────────────────────────────────────────────────────────────

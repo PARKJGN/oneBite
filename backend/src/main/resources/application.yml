@@ -1,0 +1,72 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/onebite
+    username: onebite
+    password: onebite
+  jpa:
+    hibernate:
+      ddl-auto: none          # 스키마 신뢰원 = Flyway (헌법/연구 결정)
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: onebite-push
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+onebite:
+  delivery:
+    send-local-time: "08:00"        # 사용자 타임존 기준 발송 (원칙 XI)
+    content-ready-deadline: "07:30"  # 콘텐츠 준비 마감 (SC-001)
+    dispatch-tolerance-minutes: 5    # 디스패치 허용 오차 (SC-002)
+  history:
+    retention-days: 90               # 히스토리 보관(책갈피는 영구)
+  edition:
+    items-per-slot: 5                # 슬롯당 항목 상한(4~5)
+  summarizer: placeholder            # placeholder(기본) | claude | glm
+  social: placeholder                # placeholder(기본) | http (실 OAuth UserInfo 검증 + 웹 code 교환)
+  oauth:                             # 웹 소셜 code 교환용(onebite.social=http). secret은 서버에만.
+    kakao:
+      client-id: ${KAKAO_REST_KEY:}
+      client-secret: ${KAKAO_CLIENT_SECRET:}
+    naver:
+      client-id: ${NAVER_CLIENT_ID:}
+      client-secret: ${NAVER_CLIENT_SECRET:}
+    google:
+      client-id: ${GOOGLE_CLIENT_ID:}
+      client-secret: ${GOOGLE_CLIENT_SECRET:}
+  push: logging                      # logging(기본) | fcm (실 FCM 전송)
+  security:
+    max-login-attempts: 5            # 연속 로그인 실패 임계(초과 시 일시 잠금)
+    lock-minutes: 15                 # 잠금 지속 시간(분)
+  email: logging                     # logging(기본) | smtp (실 SMTP 발송 — smtp 모드 시 spring.mail.host 등 설정 필요)
+  email-from: ${ONEBITE_EMAIL_FROM:no-reply@onebite.app}
+  reset-url: ${ONEBITE_RESET_URL:http://localhost:3000/reset}  # 재설정 랜딩(웹), ?token= 부착
+
+jwt:
+  secret: ${JWT_SECRET:}             # HS256 시크릿(≥32바이트). 미설정 시 dev 기본키(운영 금지)
+  access-ttl-minutes: 30
+  internal:
+    token: ${ONEBITE_INTERNAL_TOKEN:}  # /internal 트리거 공유 시크릿. 미설정 시 /internal 전면 차단(fail-closed)
+
+anthropic:                           # onebite.summarizer=claude 일 때
+  api-key: ${ANTHROPIC_API_KEY:}
+  model: claude-opus-4-8             # 요약 품질 우선 (비용 절감 시 claude-haiku-4-5 — 원칙 XIII)
+  max-tokens: 2048                   # 5개 항목+요약 JSON이 잘리지 않도록 (stop_reason=max_tokens 방지)
+
+glm:                                 # onebite.summarizer=glm 일 때 (OpenAI 호환)
+  api-key: ${GLM_API_KEY:}
+  base-url: https://api.z.ai/api/paas/v4   # 국제 엔드포인트 (중국 내: https://open.bigmodel.cn/api/paas/v4)
+  model: ${GLM_MODEL:glm-5.2}        # z.ai 확인: glm-5.2 (OpenAI 호환, 최대 출력 128K)
+  max-tokens: 8192                   # 한국어 멀티단락+항목 JSON 여유 (2048은 finish_reason=length로 잘림)
+  disable-thinking: true             # GLM-5.2 추론 비활성화(요약 불필요·과생성/타임아웃 방지). 추론 필요 시 false
+
+fcm:                                 # onebite.push=fcm 일 때 (FCM 푸시)
+  credentials: ${FCM_CREDENTIALS:}   # 서비스 계정 JSON 파일 경로

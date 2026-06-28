@@ -1,0 +1,75 @@
+# oneBite 운영 배포 compose — 서버에서 `docker compose pull && docker compose up -d` 로 구동.
+# 이미지는 GitHub Actions가 Docker Hub로 푸시한 것을 사용한다(${DOCKERHUB_USERNAME}/onebite-*:latest).
+# 같은 폴더의 .env(=deploy/.env.example 복사) 로 시크릿/사용자명을 주입한다.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: onebite
+      POSTGRES_USER: onebite
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./.data/postgres:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U onebite"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: apache/kafka:3.8.0
+    environment:
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"   # 컴포즈 네트워크 내부 접근명
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: "0"
+    restart: unless-stopped
+
+  backend:
+    image: ${DOCKERHUB_USERNAME}/onebite-backend:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/onebite
+      SPRING_DATASOURCE_USERNAME: onebite
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      # ── 모드 스위치(운영) ──
+      ONEBITE_SOCIAL: http          # 실 소셜 검증(UserInfo) + 웹 code 교환
+      ONEBITE_SUMMARIZER: ${ONEBITE_SUMMARIZER:-placeholder}  # claude | glm | placeholder
+      ONEBITE_EMAIL: ${ONEBITE_EMAIL:-logging}                # smtp | logging
+      ONEBITE_PUSH: ${ONEBITE_PUSH:-logging}                  # fcm | logging
+      # ── 시크릿/설정(.env 에서 주입) ──
+      JWT_SECRET: ${JWT_SECRET}
+      ONEBITE_INTERNAL_TOKEN: ${ONEBITE_INTERNAL_TOKEN}
+      ONEBITE_RESET_URL: ${ONEBITE_RESET_URL}
+      KAKAO_REST_KEY: ${KAKAO_REST_KEY}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  web:
+    image: ${DOCKERHUB_USERNAME}/onebite-web:latest
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped

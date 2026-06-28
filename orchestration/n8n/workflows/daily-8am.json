@@ -1,0 +1,52 @@
+{
+  "name": "oneBite Daily 8AM Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [ { "field": "cronExpression", "expression": "0 */15 * * * *" } ] }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule (every 15 min)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [ 240, 300 ],
+      "notes": "15분 주기로 호출. 타임존별 정시 발송은 백엔드 dispatch:run(date 미지정)이 '각 사용자 로컬 08:00 ±5분' 윈도에 든 대상만 멱등 발송으로 처리(원칙 XI/V). pipeline:run은 발송 전 생성(중복 시 재사용)."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.ONEBITE_API_URL }}/internal/pipeline:run",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "X-Internal-Token", "value": "={{ $env.ONEBITE_INTERNAL_TOKEN }}" } ] },
+        "options": { "timeout": 600000 }
+      },
+      "id": "pipeline-run",
+      "name": "Generate Editions (pipeline:run)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [ 520, 300 ],
+      "notes": "구독 조합별 에디션 생성(있으면 재사용). 백엔드가 RSS 수집→중복제거→Claude 요약→저장 수행. 07:30까지 완료 목표(SC-001)."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.ONEBITE_API_URL }}/internal/dispatch:run",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "X-Internal-Token", "value": "={{ $env.ONEBITE_INTERNAL_TOKEN }}" } ] },
+        "options": { "timeout": 300000 }
+      },
+      "id": "dispatch-run",
+      "name": "Dispatch Push (dispatch:run)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [ 800, 300 ],
+      "notes": "동의 게이트 통과 사용자에게 묶음 1푸시 잡을 Kafka로 발행. 08:00 ±5분 디스패치(SC-002)."
+    }
+  ],
+  "connections": {
+    "Schedule (every 15 min)": { "main": [ [ { "node": "Generate Editions (pipeline:run)", "type": "main", "index": 0 } ] ] },
+    "Generate Editions (pipeline:run)": { "main": [ [ { "node": "Dispatch Push (dispatch:run)", "type": "main", "index": 0 } ] ] }
+  },
+  "settings": {},
+  "notes": "oneBite 매일 8시 파이프라인. ONEBITE_API_URL 환경변수에 백엔드 주소 설정. 내부 트리거는 운영에서 인증·네트워크 격리 필요(후속). 타임존별 정시 발송은 타임존 그룹별 스케줄 복제 또는 백엔드 스케줄링으로 정교화 예정."
+}

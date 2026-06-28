@@ -1,0 +1,22 @@
+# 비밀이 아닌 설정값(모드 스위치/내부 주소). 자유롭게 커밋 가능.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: onebite-config
+  namespace: onebite
+data:
+  # ── DB 접속(클러스터 내부 주소) ──
+  POSTGRES_DB: "onebite"
+  POSTGRES_USER: "onebite"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/onebite"
+  SPRING_DATASOURCE_USERNAME: "onebite"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  # ── 백엔드를 /api 컨텍스트패스 밑으로 서비스(공용 인그레스가 /api 를 떼지 않으므로) ──
+  SERVER_SERVLET_CONTEXT_PATH: "/api"
+  # ── 운영 모드 스위치 ──
+  ONEBITE_SOCIAL: "http"          # 실 소셜 검증(UserInfo) + 웹 code 교환
+  ONEBITE_SUMMARIZER: "placeholder"  # claude | glm | placeholder
+  ONEBITE_EMAIL: "logging"           # smtp | logging
+  ONEBITE_PUSH: "logging"            # fcm | logging
+  # ── 공개 URL ──
+  ONEBITE_RESET_URL: "https://onebite.jgbak-land.com/reset"

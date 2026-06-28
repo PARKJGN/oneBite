@@ -1,0 +1,80 @@
+package app.adapter
+
+import app.adapter.`in`.web.AccountController
+import app.adapter.`in`.web.AuthController
+import app.adapter.`in`.web.DeviceController
+import app.adapter.`in`.web.EditionController
+import app.adapter.`in`.web.SlotController
+import app.domain.model.Edition
+import app.domain.model.EditionContent
+import app.domain.model.EditionItem
+import app.domain.model.Language
+import app.domain.port.out.DeviceTokenRepository
+import app.domain.port.out.EditionRepository
+import app.domain.port.out.UserRepository
+import app.domain.service.ComboKey
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
+import java.time.LocalDate
+import java.time.ZoneOffset
+
+/** 탈퇴(FR-018a): 개인정보·슬롯 삭제, 공유 Edition은 보존. */
+@Testcontainers(disabledWithoutDocker = true)
+@SpringBootTest
+class AccountDeletionIT {
+
+    companion object {
+        @Container @JvmStatic
+        val postgres = PostgreSQLContainer("postgres:16")
+            .withDatabaseName("onebite").withUsername("onebite").withPassword("onebite")
+
+        @JvmStatic @DynamicPropertySource
+        fun props(registry: DynamicPropertyRegistry) {
+            registry.add("spring.datasource.url", postgres::getJdbcUrl)
+            registry.add("spring.datasource.username", postgres::getUsername)
+            registry.add("spring.datasource.password", postgres::getPassword)
+            registry.add("spring.autoconfigure.exclude") {
+                "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
+            }
+        }
+    }
+
+    @Autowired lateinit var auth: AuthController
+    @Autowired lateinit var slot: SlotController
+    @Autowired lateinit var editionApi: EditionController
+    @Autowired lateinit var account: AccountController
+    @Autowired lateinit var device: DeviceController
+    @Autowired lateinit var users: UserRepository
+    @Autowired lateinit var editions: EditionRepository
+    @Autowired lateinit var deviceTokens: DeviceTokenRepository
+
+    @Test
+    fun `탈퇴 시 개인정보·슬롯은 삭제되고 공유 Edition은 남는다`() {
+        val user = auth.signup(AuthController.SignupRequest("dave", "password123", "데이브"))
+        slot.create(user.userId, SlotController.CreateSlotRequest(listOf("politics", "economy")))
+        val today = LocalDate.now(ZoneOffset.UTC)
+        val combo = ComboKey.of(listOf("politics", "economy"))
+        val ed = editions.save(
+            Edition(null, combo, Language.KO, today,
+                EditionContent("핵심", listOf("요약"), null, listOf(EditionItem("t", "s", "u", "politics")), listOf("s"))),
+        )
+        editionApi.edition(user.userId, ed.id!!) // 읽음 상태 생성
+        device.register(user.userId, DeviceController.RegisterRequest("tok-dave", "android")) // 기기 토큰 등록
+
+        account.delete(user.userId)
+
+        assertNull(users.findById(user.userId))                 // 사용자 삭제
+        assertTrue(slot.list(user.userId).isEmpty())            // 슬롯 삭제(cascade)
+        assertNotNull(editions.findById(ed.id!!))               // 공유 Edition 보존
+        assertTrue(deviceTokens.findActiveTokens(user.userId).isEmpty()) // 기기 토큰 삭제(원칙 VI)
+    }
+}

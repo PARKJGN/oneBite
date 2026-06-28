@@ -1,0 +1,53 @@
+# Kotlin / Gradle / JVM
+build/
+out/
+.gradle/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.iml
+
+# Node / RN / Next.js
+node_modules/
+dist/
+.next/
+coverage/
+*.log
+.expo/
+*.tsbuildinfo
+
+# Markdown 문서 — 커밋 제외(공개 repo 에서 문서류 비공개)
+*.md
+
+# 개인 회고(로컬 보관, 커밋 제외)
+oneBite-회고-정리.txt
+
+# Env / secrets — 실제값과 템플릿(.example) 모두 커밋 제외
+.env
+.env.*
+*.example
+*.example.yaml
+
+# Kubernetes 실 시크릿 매니페스트
+deploy/k8s/10-secret.yaml
+
+# Firebase / 모바일 자격증명 (실제 키 — 커밋 금지, EAS 시크릿으로 주입)
+google-services.json
+GoogleService-Info.plist
+# Android 서명 / 서비스 계정 키
+*.keystore
+*.jks
+**/serviceAccount*.json
+**/*-firebase-adminsdk-*.json
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Docker / infra volumes
+infra/.data/
+
+# Local tooling (downloaded Gradle dist)
+.tooling/

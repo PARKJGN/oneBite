@@ -1,0 +1,47 @@
+# 백엔드(Spring Boot) — Service 는 80→8080 으로 노출(공용 ExternalName 이 80 으로 붙음).
+# image = ghcr.io/parkjgn/... (GHCR 은 소문자만 허용 → PARKJGN → parkjgn).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: onebite
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: backend }
+  template:
+    metadata:
+      labels: { app: backend }
+    spec:
+      # 패키지가 private 이면 주석 해제 + ghcr-pull 시크릿 생성(docs/deploy.md 4장). public 이면 불필요.
+      # imagePullSecrets:
+      #   - name: ghcr-pull
+      containers:
+        - name: backend
+          image: ghcr.io/parkjgn/onebite-backend:latest
+          envFrom:
+            - configMapRef: { name: onebite-config }   # SPRING_*, ONEBITE_*, SERVER_SERVLET_CONTEXT_PATH=/api
+            - secretRef:    { name: onebite-secrets }   # JWT/소셜 secret 등
+          env:
+            - { name: SPRING_DATASOURCE_PASSWORD, valueFrom: { secretKeyRef: { name: onebite-secrets, key: POSTGRES_PASSWORD } } }
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            tcpSocket: { port: 8080 }   # 보호된 엔드포인트의 401 오탐 방지 위해 TCP 로(기동되면 포트 오픈)
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket: { port: 8080 }
+            initialDelaySeconds: 40
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend             # 공용 ExternalName(onebite-server-service) 이 backend.onebite.svc 로 연결
+  namespace: onebite
+spec:
+  selector: { app: backend }
+  ports:
+    - { port: 80, targetPort: 8080 }   # 인그레스가 80 으로 붙음 → 컨테이너 8080
