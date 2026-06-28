@@ -1,6 +1,5 @@
 # Kotlin / Gradle / JVM
 build/
-out/
 .gradle/
 *.class
 *.jar
