@@ -8,6 +8,12 @@ interface GenerateEditionsUseCase {
 }
 data class GenerationSummary(val generated: Int, val reused: Int, val fallback: Int = 0)
 
+/** 주기 수집(매시간): 활성 카테고리별 RSS 를 raw_articles 에 적재(중복 무시) + 오래된 것 정리. */
+interface IngestUseCase {
+    fun run(): IngestSummary
+}
+data class IngestSummary(val fetched: Int, val saved: Int, val purged: Int)
+
 /** 발송(원칙 I·V·X): 동의 게이트 통과 사용자에게 묶음 1푸시 잡 발행. */
 interface DispatchUseCase {
     fun dispatchForDate(issueDate: LocalDate): Int // 발행한 푸시 잡 수

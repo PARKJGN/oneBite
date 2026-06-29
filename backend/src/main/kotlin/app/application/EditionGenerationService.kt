@@ -13,7 +13,7 @@ import app.application.port.`in`.GenerationSummary
 import app.application.port.out.DeliveryTargetQuery
 import app.application.port.out.EditionRepository
 import app.application.port.out.EventPublisher
-import app.application.port.out.FeedPort
+import app.application.port.out.RawArticleStore
 import app.application.port.out.SummarizeInput
 import app.application.port.out.SummarizerPort
 import org.springframework.stereotype.Service
@@ -31,7 +31,7 @@ import java.time.LocalDate
 class EditionGenerationService(
     private val targets: DeliveryTargetQuery,
     private val editions: EditionRepository,
-    private val feed: FeedPort,
+    private val rawArticles: RawArticleStore,
     private val summarizer: SummarizerPort,
     private val events: EventPublisher,
 ) : GenerateEditionsUseCase {
@@ -58,7 +58,7 @@ class EditionGenerationService(
                     reused++; events.emit("cache_hit", mapOf("combo" to comboKey, "lang" to language.name)); continue
                 }
                 val categoryCodes = comboKey.split("+").filter { it.isNotBlank() }
-                val articles = categoryCodes.flatMap { feed.fetch(it, since, until) }
+                val articles = categoryCodes.flatMap { rawArticles.findWindow(it, since, until) }
                 val top = Ranking.balancedTopClusters(Dedup.clusterByEvent(articles), categoryCodes)
 
                 // 1) AI 요약 시도(+품질검증). 실패(호출 오류·품질 미달) 시 null → 폴백 사다리로.

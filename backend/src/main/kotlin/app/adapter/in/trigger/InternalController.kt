@@ -3,6 +3,8 @@ package app.adapter.`in`.trigger
 import app.application.DispatchService
 import app.application.port.`in`.GenerateEditionsUseCase
 import app.application.port.`in`.GenerationSummary
+import app.application.port.`in`.IngestSummary
+import app.application.port.`in`.IngestUseCase
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,16 +15,21 @@ import java.time.LocalDate
 
 /**
  * n8n 오케스트레이션이 호출하는 내부 트리거(인증: 내부 전용으로 후속 보강).
- * - pipeline:run  : 구독 조합별 에디션 생성(있으면 재사용). 07:30 마감 전 실행.
+ * - ingest:run    : 활성 카테고리별 RSS 수집→raw_articles 적재(중복 무시). 매시간 실행.
+ * - pipeline:run  : 구독 조합별 에디션 생성(있으면 재사용). 07:30 마감 전 실행(raw_articles 창 사용).
  * - dispatch:run  : 동의 게이트 통과 사용자에게 묶음 1푸시 발행. 08:00 발송.
  */
 @RestController
 @RequestMapping("/internal")
 class InternalController(
+    private val ingest: IngestUseCase,
     private val generate: GenerateEditionsUseCase,
     private val dispatch: DispatchService,
 ) {
     data class DispatchResult(val dispatched: Int)
+
+    @PostMapping("/ingest:run")
+    fun ingest(): IngestSummary = ingest.run()
 
     @PostMapping("/pipeline:run")
     fun pipeline(

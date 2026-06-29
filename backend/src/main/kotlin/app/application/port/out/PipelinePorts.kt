@@ -19,6 +19,19 @@ fun interface RssSourceProvider {
 }
 data class RssSource(val categoryCode: String, val url: String, val language: Language)
 
+/**
+ * 수집 적재 저장소: 주기 수집(매시간)이 RSS를 여기 쌓고, 8시 배치는 라이브 피드 대신 여기서 창을 자른다.
+ * (RSS 는 최근 N개만 노출 → 시간 지나면 창 구간 기사가 사라짐. 적재해두면 고정 창을 안정적으로 재구성.)
+ */
+interface RawArticleStore {
+    /** (category_code, url) 중복은 무시(ON CONFLICT). 신규로 저장된 건수 반환. */
+    fun saveNew(articles: List<RawArticle>): Int
+    /** [sinceUtc, untilUtc] 발행분 조회(생성 창). */
+    fun findWindow(categoryCode: String, sinceUtc: Instant, untilUtc: Instant): List<RawArticle>
+    /** 보관 정책: cutoff 이전 발행분 삭제. 삭제 건수 반환. */
+    fun purgeOlderThan(cutoffUtc: Instant): Int
+}
+
 /** RSS 본문 다운로드(네트워크). 실패 시 null(품질 게이트에서 제외·로깅). */
 fun interface FeedFetcher {
     fun fetch(url: String): String?

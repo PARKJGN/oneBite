@@ -10,7 +10,7 @@ import app.application.port.out.DeliveryTarget
 import app.application.port.out.DeliveryTargetQuery
 import app.application.port.out.EditionRepository
 import app.application.port.out.EventPublisher
-import app.application.port.out.FeedPort
+import app.application.port.out.RawArticleStore
 import app.application.port.out.PushDeliveryRepository
 import app.application.port.out.PushJob
 import app.application.port.out.PushJobPublisher
@@ -45,8 +45,11 @@ class EditionPipelineServiceTest {
     private val targets = DeliveryTargetQuery {
         listOf(DeliveryTarget(userId = 1L, language = Language.KO, comboKeys = listOf("politics")))
     }
-    private val feed = FeedPort { _, _, _ ->
-        listOf(RawArticle("t", "https://u", "연합", Language.KO, "politics", Instant.now()))
+    private val rawArticles = object : RawArticleStore {
+        override fun saveNew(articles: List<RawArticle>) = 0
+        override fun findWindow(categoryCode: String, sinceUtc: Instant, untilUtc: Instant) =
+            listOf(RawArticle("t", "https://u", "연합", Language.KO, "politics", Instant.now()))
+        override fun purgeOlderThan(cutoffUtc: Instant) = 0
     }
     private val summarizer = SummarizerPort { input: SummarizeInput ->
         EditionContent("핵심", listOf("요약"), null, input.articles.map { EditionItem(it.title, it.source, it.url, it.categoryCode) }, listOf("연합"))
@@ -65,7 +68,7 @@ class EditionPipelineServiceTest {
     @Test
     fun `신규 조합은 생성된다`() {
         val editions = FakeEditions()
-        val svc = EditionGenerationService(targets, editions, feed, summarizer, noEvents)
+        val svc = EditionGenerationService(targets, editions, rawArticles,summarizer, noEvents)
         val summary = svc.runForDate(date)
         assertEquals(1, summary.generated)
         assertEquals(0, summary.reused)
@@ -76,7 +79,7 @@ class EditionPipelineServiceTest {
     fun `이미 있는 조합은 재사용되어 재생성하지 않는다 (FR-015a)`() {
         val editions = FakeEditions()
         editions.save(Edition(null, "politics", Language.KO, date, EditionContent("핵심", listOf("요약"), null, listOf(EditionItem("t", "s", "u", "politics")), listOf("s"))))
-        val svc = EditionGenerationService(targets, editions, feed, summarizer, noEvents)
+        val svc = EditionGenerationService(targets, editions, rawArticles,summarizer, noEvents)
         val summary = svc.runForDate(date)
         assertEquals(0, summary.generated)
         assertEquals(1, summary.reused)
@@ -85,7 +88,7 @@ class EditionPipelineServiceTest {
     @Test
     fun `AI 실패 시 비-AI 헤드라인으로 폴백 생성한다 (직전분 없음, 원칙 X)`() {
         val editions = FakeEditions()
-        val svc = EditionGenerationService(targets, editions, feed, failingSummarizer, noEvents)
+        val svc = EditionGenerationService(targets, editions, rawArticles,failingSummarizer, noEvents)
         val summary = svc.runForDate(date)
         assertEquals(0, summary.generated)
         assertEquals(1, summary.fallback)
@@ -100,7 +103,7 @@ class EditionPipelineServiceTest {
             Edition(null, "politics", Language.KO, date.minusDays(1),
                 EditionContent("어제 핵심", listOf("어제 요약"), null, listOf(EditionItem("t", "s", "u", "politics")), listOf("s"))),
         )
-        val svc = EditionGenerationService(targets, editions, feed, failingSummarizer, noEvents)
+        val svc = EditionGenerationService(targets, editions, rawArticles,failingSummarizer, noEvents)
         val summary = svc.runForDate(date)
         assertEquals(1, summary.fallback)
         val today = editions.findByKey("politics", Language.KO, date)!!
