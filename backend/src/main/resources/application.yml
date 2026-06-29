@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/onebite
-    username: onebite
-    password: onebite
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/onebite}
+    username: ${SPRING_DATASOURCE_USERNAME:onebite}
+    password: ${SPRING_DATASOURCE_PASSWORD:onebite}   # 운영: k8s Secret(onebite-secrets) 주입
   jpa:
     hibernate:
       ddl-auto: none          # 스키마 신뢰원 = Flyway (헌법/연구 결정)
@@ -11,7 +11,7 @@ spring:
     enabled: true
     locations: classpath:db/migration
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -30,7 +30,7 @@ onebite:
     retention-days: 90               # 히스토리 보관(책갈피는 영구)
   edition:
     items-per-slot: 5                # 슬롯당 항목 상한(4~5)
-  summarizer: placeholder            # placeholder(기본) | claude | glm
+  summarizer: placeholder            # placeholder(기본) | glm
   social: placeholder                # placeholder(기본) | http (실 OAuth UserInfo 검증 + 웹 code 교환)
   oauth:                             # 웹 소셜 code 교환용(onebite.social=http). secret은 서버에만.
     kakao:
@@ -55,11 +55,6 @@ jwt:
   access-ttl-minutes: 30
   internal:
     token: ${ONEBITE_INTERNAL_TOKEN:}  # /internal 트리거 공유 시크릿. 미설정 시 /internal 전면 차단(fail-closed)
-
-anthropic:                           # onebite.summarizer=claude 일 때
-  api-key: ${ANTHROPIC_API_KEY:}
-  model: claude-opus-4-8             # 요약 품질 우선 (비용 절감 시 claude-haiku-4-5 — 원칙 XIII)
-  max-tokens: 2048                   # 5개 항목+요약 JSON이 잘리지 않도록 (stop_reason=max_tokens 방지)
 
 glm:                                 # onebite.summarizer=glm 일 때 (OpenAI 호환)
   api-key: ${GLM_API_KEY:}

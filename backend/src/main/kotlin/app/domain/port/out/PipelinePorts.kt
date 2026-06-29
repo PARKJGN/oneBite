@@ -23,7 +23,7 @@ fun interface FeedFetcher {
     fun fetch(url: String): String?
 }
 
-/** Claude 요약·번역(II·XV) — 랭킹된 군집을 받아 사용자 언어로 에디션 콘텐츠를 생성. */
+/** LLM 요약·번역(II·XV) — 랭킹된 군집을 받아 사용자 언어로 에디션 콘텐츠를 생성. */
 fun interface SummarizerPort {
     fun summarize(input: SummarizeInput): EditionContent
 }

@@ -48,7 +48,7 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       # ── 모드 스위치(운영) ──
       ONEBITE_SOCIAL: http          # 실 소셜 검증(UserInfo) + 웹 code 교환
-      ONEBITE_SUMMARIZER: ${ONEBITE_SUMMARIZER:-placeholder}  # claude | glm | placeholder
+      ONEBITE_SUMMARIZER: ${ONEBITE_SUMMARIZER:-placeholder}  # glm | placeholder
       ONEBITE_EMAIL: ${ONEBITE_EMAIL:-logging}                # smtp | logging
       ONEBITE_PUSH: ${ONEBITE_PUSH:-logging}                  # fcm | logging
       # ── 시크릿/설정(.env 에서 주입) ──
@@ -61,7 +61,7 @@ services:
       NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GLM_API_KEY: ${GLM_API_KEY:-}
     ports:
       - "8080:8080"
     restart: unless-stopped

@@ -6,7 +6,7 @@ package app.domain.service
  * 부분집합(4→3→2)으로 연결한다. 어떤 조합으로도 근거가 없으면 연결을 만들지 않는다
  * (억지 연결 금지 → null 반환 = 개별 요약만 제공).
  *
- * `hasEvidence`는 요약 어댑터(Claude)가 제공하는 "해당 카테고리 부분집합에 실제
+ * `hasEvidence`는 요약 어댑터(LLM)가 제공하는 "해당 카테고리 부분집합에 실제
  * 근거 있는 연결이 존재하는가" 판정 함수. 도메인은 부분집합 탐색 순서만 강제한다.
  */
 object CrossSynthesis {

@@ -15,7 +15,7 @@ data:
   SERVER_SERVLET_CONTEXT_PATH: "/api"
   # ── 운영 모드 스위치 ──
   ONEBITE_SOCIAL: "http"          # 실 소셜 검증(UserInfo) + 웹 code 교환
-  ONEBITE_SUMMARIZER: "placeholder"  # claude | glm | placeholder
+  ONEBITE_SUMMARIZER: "placeholder"  # glm | placeholder
   ONEBITE_EMAIL: "logging"           # smtp | logging
   ONEBITE_PUSH: "logging"            # fcm | logging
   # ── 공개 URL ──

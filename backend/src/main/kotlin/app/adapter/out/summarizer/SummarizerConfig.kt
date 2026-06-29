@@ -9,21 +9,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 /**
- * 요약 제공사 선택(onebite.summarizer): placeholder(기본) | claude | glm.
+ * 요약 제공사 선택(onebite.summarizer): placeholder(기본) | glm.
  * 제공사별로 LlmChatClient 빈을 하나만 만들고, 그 빈이 있으면 LlmEditionSummarizer를 활성화한다.
  * (placeholder/미설정이면 LlmChatClient 빈이 없어 PlaceholderSummarizer가 그대로 쓰인다.)
  */
 @Configuration
 class SummarizerConfig {
-
-    @Bean
-    @ConditionalOnProperty(name = ["onebite.summarizer"], havingValue = "claude")
-    fun anthropicChatClient(
-        @Value("\${anthropic.api-key:}") apiKey: String,
-        @Value("\${anthropic.model:claude-opus-4-8}") model: String,
-        @Value("\${anthropic.max-tokens:2048}") maxTokens: Int,
-        om: ObjectMapper,
-    ): LlmChatClient = HttpAnthropicClient(apiKey, model, maxTokens, om)
 
     @Bean
     @ConditionalOnProperty(name = ["onebite.summarizer"], havingValue = "glm")

@@ -1,6 +1,5 @@
 package app.adapter.summarizer
 
-import app.adapter.out.summarizer.HttpAnthropicClient
 import app.adapter.out.summarizer.LlmChatClient
 import app.adapter.out.summarizer.LlmEditionSummarizer
 import app.adapter.out.summarizer.OpenAiCompatChatClient
@@ -16,14 +15,12 @@ import org.junit.jupiter.api.Test
 import java.time.Instant
 
 /**
- * 실 LLM 연동 검증(라이브) — 제공사 무관. 키가 있을 때만 실행되고, 없으면 건너뛴다.
+ * 실 LLM 연동 검증(라이브, GLM) — GLM_API_KEY 가 있을 때만 실행되고, 없으면 건너뛴다.
  * Docker/DB/Kafka 불필요 — 실제 요약 경로(프롬프트→LLM→JSON 파싱→ContentQuality)만 1회 호출.
  *
- * 우선순위: GLM_API_KEY 가 있으면 GLM(OpenAI 호환), 없으면 ANTHROPIC_API_KEY 로 Claude.
- *   GLM:    GLM_API_KEY=... [GLM_BASE_URL=...] [GLM_MODEL=glm-4.6]
- *   Claude: ANTHROPIC_API_KEY=... [ANTHROPIC_MODEL=claude-opus-4-8]
+ *   GLM: GLM_API_KEY=... [GLM_BASE_URL=...] [GLM_MODEL=glm-5.2]
  *
- * 실행:  GLM_API_KEY=... GLM_MODEL=glm-4.6 ./gradlew cleanTest test --tests "app.adapter.summarizer.LiveSummarizerIT" -i
+ * 실행:  GLM_API_KEY=... GLM_MODEL=glm-5.2 ./gradlew cleanTest test --tests "app.adapter.summarizer.LiveSummarizerIT" -i
  */
 class LiveSummarizerIT {
 
@@ -32,20 +29,12 @@ class LiveSummarizerIT {
     @Test
     fun `실제 LLM 호출로 EditionContent를 생성하고 품질을 통과한다`() {
         val glmKey = System.getenv("GLM_API_KEY").orEmpty()
-        val claudeKey = System.getenv("ANTHROPIC_API_KEY").orEmpty()
-        assumeTrue(glmKey.isNotBlank() || claudeKey.isNotBlank(), "GLM_API_KEY/ANTHROPIC_API_KEY 미설정 — 라이브 테스트 건너뜀")
+        assumeTrue(glmKey.isNotBlank(), "GLM_API_KEY 미설정 — 라이브 테스트 건너뜀")
 
-        val (provider, client) = when {
-            glmKey.isNotBlank() -> {
-                val base = System.getenv("GLM_BASE_URL")?.ifBlank { null } ?: "https://api.z.ai/api/paas/v4"
-                val model = System.getenv("GLM_MODEL")?.ifBlank { null } ?: "glm-5.2"
-                "GLM($model @ $base)" to OpenAiCompatChatClient(glmKey, base, model, 8192, om, disableThinking = true) as LlmChatClient
-            }
-            else -> {
-                val model = System.getenv("ANTHROPIC_MODEL")?.ifBlank { null } ?: "claude-opus-4-8"
-                "Claude($model)" to HttpAnthropicClient(claudeKey, model, 8192, om) as LlmChatClient
-            }
-        }
+        val base = System.getenv("GLM_BASE_URL")?.ifBlank { null } ?: "https://api.z.ai/api/paas/v4"
+        val model = System.getenv("GLM_MODEL")?.ifBlank { null } ?: "glm-5.2"
+        val provider = "GLM($model @ $base)"
+        val client: LlmChatClient = OpenAiCompatChatClient(glmKey, base, model, 8192, om, disableThinking = true)
         val summarizer = LlmEditionSummarizer(client, om)
 
         // 정치+경제 2개 카테고리 → 교차 종합(crossInsight) 근거가 있으면 생성되는지도 함께 본다
