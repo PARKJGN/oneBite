@@ -11,9 +11,8 @@ import app.domain.service.Ranking
 import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
+import java.time.Duration
+import java.time.Instant
 
 /**
  * 라이브: 실제 RSS(politics+realestate) → Dedup/Ranking → **GLM 요약** → 정치+부동산 복합정보 1건.
@@ -32,12 +31,10 @@ class RssGlmEditionIT : IntegrationTest() {
         assumeTrue(glmKey.isNotBlank(), "GLM_API_KEY 미설정 — 라이브 생성 건너뜀")
 
         val categories = listOf("politics", "realestate")
-        // 운영 파이프라인과 동일한 창: [어제 07:30 KST, 오늘 07:30 KST] 고정 24h
-        val zone = ZoneId.of("Asia/Seoul")
-        val cutoff = LocalTime.of(7, 30)
-        val today = LocalDate.now(zone)
-        val until = today.atTime(cutoff).atZone(zone).toInstant()
-        val since = today.minusDays(1).atTime(cutoff).atZone(zone).toInstant()
+        // 수동 데모: '지금 기준 직전 24h' 롤링 창 — 실행 시각의 최신 기사로 오늘자 정치+부동산을 본다.
+        // (운영 8시 배치는 raw_articles 의 07:30 고정 창 사용. 이 러너는 라이브 피드 즉석 데모.)
+        val until = Instant.now()
+        val since = until.minus(Duration.ofHours(24))
         val articles = categories.flatMap { feed.fetch(it, since, until) }
         println("=== 수집 기사 ${articles.size}건 ===")
         articles.take(20).forEach { println("- [${it.categoryCode}] ${it.title} (${it.source})") }
