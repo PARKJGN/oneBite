@@ -25,7 +25,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4,
       "position": [ 520, 300 ],
-      "notes": "구독 조합별 에디션 생성(있으면 재사용). 백엔드가 RSS 수집→중복제거→Claude 요약→저장 수행. 07:30까지 완료 목표(SC-001)."
+      "notes": "구독 조합별 에디션 생성(있으면 재사용). raw_articles 의 [어제07:30~오늘07:30] 창에서 중복제거→GLM 요약→저장. 07:30까지 완료 목표(SC-001)."
     },
     {
       "parameters": {
@@ -41,12 +41,39 @@
       "typeVersion": 4,
       "position": [ 800, 300 ],
       "notes": "동의 게이트 통과 사용자에게 묶음 1푸시 잡을 Kafka로 발행. 08:00 ±5분 디스패치(SC-002)."
+    },
+    {
+      "parameters": {
+        "rule": { "interval": [ { "field": "cronExpression", "expression": "0 0 * * * *" } ] }
+      },
+      "id": "schedule-hourly",
+      "name": "Schedule (hourly)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [ 240, 500 ],
+      "notes": "매시간 정각. RSS 수집(ingest:run)을 주기 실행해 raw_articles 에 적재 — 피드는 최근분만 노출되므로 사라지기 전에 저장해야 8시 생성이 고정 창을 재구성할 수 있다."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.ONEBITE_API_URL }}/internal/ingest:run",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "X-Internal-Token", "value": "={{ $env.ONEBITE_INTERNAL_TOKEN }}" } ] },
+        "options": { "timeout": 600000 }
+      },
+      "id": "ingest-run",
+      "name": "Ingest RSS (ingest:run)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [ 520, 500 ],
+      "notes": "활성 카테고리별 RSS 1회 수집 → raw_articles 적재(중복 무시) + 보관 14일 정리. 생성(pipeline:run)은 이 적재분에서 창을 자른다."
     }
   ],
   "connections": {
     "Schedule (every 15 min)": { "main": [ [ { "node": "Generate Editions (pipeline:run)", "type": "main", "index": 0 } ] ] },
-    "Generate Editions (pipeline:run)": { "main": [ [ { "node": "Dispatch Push (dispatch:run)", "type": "main", "index": 0 } ] ] }
+    "Generate Editions (pipeline:run)": { "main": [ [ { "node": "Dispatch Push (dispatch:run)", "type": "main", "index": 0 } ] ] },
+    "Schedule (hourly)": { "main": [ [ { "node": "Ingest RSS (ingest:run)", "type": "main", "index": 0 } ] ] }
   },
   "settings": {},
-  "notes": "oneBite 매일 8시 파이프라인. ONEBITE_API_URL 환경변수에 백엔드 주소 설정. 내부 트리거는 운영에서 인증·네트워크 격리 필요(후속). 타임존별 정시 발송은 타임존 그룹별 스케줄 복제 또는 백엔드 스케줄링으로 정교화 예정."
+  "notes": "oneBite 파이프라인. ONEBITE_API_URL 에 백엔드 주소 설정. (1) 매시간 ingest:run 으로 RSS 적재, (2) 15분 주기로 pipeline:run(생성)→dispatch:run(타임존별 08:00 발송). 내부 트리거는 X-Internal-Token 으로 인증(ONEBITE_INTERNAL_TOKEN)."
 }
