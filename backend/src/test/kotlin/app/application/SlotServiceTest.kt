@@ -3,8 +3,8 @@ package app.application
 import app.domain.UnknownCategoryException
 import app.domain.model.Category
 import app.domain.model.Slot
-import app.domain.port.out.CategoryRepository
-import app.domain.port.out.SlotRepository
+import app.application.port.out.CategoryRepository
+import app.application.port.out.SlotRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test

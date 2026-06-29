@@ -1,4 +1,4 @@
-package app.domain.port.out
+package app.application.port.out
 
 /**
  * Refresh 토큰 저장(불투명·해시 저장, FR-001). access(JWT) 만료 시 재로그인 없이 갱신.

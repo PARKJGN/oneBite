@@ -1,9 +1,9 @@
 package app.application
 
-import app.domain.port.`in`.BookmarkUseCase
-import app.domain.port.`in`.BookmarkView
-import app.domain.port.out.EditionRepository
-import app.domain.port.out.UserEditionStateRepository
+import app.application.port.`in`.BookmarkUseCase
+import app.application.port.`in`.BookmarkView
+import app.application.port.out.EditionRepository
+import app.application.port.out.UserEditionStateRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant

@@ -1,8 +1,8 @@
 package app.application
 
-import app.domain.port.out.DeviceTokenRepository
-import app.domain.port.out.RefreshTokenStore
-import app.domain.port.out.UserRepository
+import app.application.port.out.DeviceTokenRepository
+import app.application.port.out.RefreshTokenStore
+import app.application.port.out.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

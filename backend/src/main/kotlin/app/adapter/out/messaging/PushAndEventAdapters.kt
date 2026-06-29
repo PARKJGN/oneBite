@@ -1,9 +1,9 @@
 package app.adapter.out.messaging
 
 import app.adapter.out.metrics.MetricsRegistry
-import app.domain.port.out.EventPublisher
-import app.domain.port.out.PushJob
-import app.domain.port.out.PushJobPublisher
+import app.application.port.out.EventPublisher
+import app.application.port.out.PushJob
+import app.application.port.out.PushJobPublisher
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component

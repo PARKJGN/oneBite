@@ -1,7 +1,7 @@
 package app.application
 
-import app.domain.port.`in`.RegisterDeviceTokenUseCase
-import app.domain.port.out.DeviceTokenRepository
+import app.application.port.`in`.RegisterDeviceTokenUseCase
+import app.application.port.out.DeviceTokenRepository
 import org.springframework.stereotype.Service
 
 @Service

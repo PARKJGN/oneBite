@@ -3,7 +3,7 @@ package app.adapter
 import app.adapter.`in`.web.AuthController
 import app.adapter.`in`.web.MeController
 import app.adapter.`in`.web.SlotController
-import app.domain.port.out.DeliveryTargetQuery
+import app.application.port.out.DeliveryTargetQuery
 import app.domain.service.ComboKey
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue

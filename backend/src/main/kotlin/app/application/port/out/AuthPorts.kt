@@ -1,4 +1,4 @@
-package app.domain.port.out
+package app.application.port.out
 
 /** 비밀번호 재설정 토큰 발급·소비(단일 사용·만료). FR-001b. */
 interface PasswordResetTokenStore {

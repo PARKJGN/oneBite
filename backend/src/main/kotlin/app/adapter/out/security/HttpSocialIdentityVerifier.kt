@@ -1,7 +1,7 @@
 package app.adapter.out.security
 
-import app.domain.port.out.SocialIdentity
-import app.domain.port.out.SocialIdentityVerifier
+import app.application.port.out.SocialIdentity
+import app.application.port.out.SocialIdentityVerifier
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

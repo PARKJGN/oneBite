@@ -1,6 +1,6 @@
 package app.adapter.out.security
 
-import app.domain.port.out.PasswordHasher
+import app.application.port.out.PasswordHasher
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 

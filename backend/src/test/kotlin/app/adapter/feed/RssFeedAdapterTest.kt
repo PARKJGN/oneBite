@@ -2,9 +2,9 @@ package app.adapter.feed
 
 import app.adapter.out.feed.RssFeedAdapter
 import app.domain.model.Language
-import app.domain.port.out.FeedFetcher
-import app.domain.port.out.RssSource
-import app.domain.port.out.RssSourceProvider
+import app.application.port.out.FeedFetcher
+import app.application.port.out.RssSource
+import app.application.port.out.RssSourceProvider
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

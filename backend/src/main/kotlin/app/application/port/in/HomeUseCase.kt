@@ -1,4 +1,4 @@
-package app.domain.port.`in`
+package app.application.port.`in`
 
 /**
  * 홈 "어제 핵심 뉴스"(FR-021): 사용자의 모든 슬롯의 어제 에디션 항목을 합쳐

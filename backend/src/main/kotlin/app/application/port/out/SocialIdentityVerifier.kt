@@ -1,4 +1,4 @@
-package app.domain.port.out
+package app.application.port.out
 
 /**
  * 소셜 제공자 토큰 검증(FR-001c) — provider access token을 검증해 제공자 사용자 식별 정보를 돌려준다.

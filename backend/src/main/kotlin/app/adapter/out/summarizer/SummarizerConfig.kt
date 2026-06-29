@@ -1,6 +1,6 @@
 package app.adapter.out.summarizer
 
-import app.domain.port.out.SummarizerPort
+import app.application.port.out.SummarizerPort
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean

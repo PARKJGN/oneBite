@@ -1,9 +1,9 @@
 package app.adapter.`in`.web
 
-import app.domain.port.`in`.AuthUseCase
-import app.domain.port.`in`.LoginCommand
-import app.domain.port.`in`.PasswordResetUseCase
-import app.domain.port.`in`.SignupCommand
+import app.application.port.`in`.AuthUseCase
+import app.application.port.`in`.LoginCommand
+import app.application.port.`in`.PasswordResetUseCase
+import app.application.port.`in`.SignupCommand
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping

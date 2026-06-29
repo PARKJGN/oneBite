@@ -1,7 +1,7 @@
 package app.adapter.out.messaging
 
-import app.domain.port.out.PushJob
-import app.domain.port.out.PushSender
+import app.application.port.out.PushJob
+import app.application.port.out.PushSender
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory

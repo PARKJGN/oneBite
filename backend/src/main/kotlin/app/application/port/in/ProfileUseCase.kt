@@ -1,4 +1,4 @@
-package app.domain.port.`in`
+package app.application.port.`in`
 
 interface ProfileUseCase {
     fun get(userId: Long): ProfileView

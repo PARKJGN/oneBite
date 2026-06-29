@@ -3,10 +3,10 @@ package app.application
 import app.domain.UnknownCategoryException
 import app.domain.model.Slot
 import app.domain.model.SlotPolicy
-import app.domain.port.`in`.SlotUseCase
-import app.domain.port.`in`.SlotView
-import app.domain.port.out.CategoryRepository
-import app.domain.port.out.SlotRepository
+import app.application.port.`in`.SlotUseCase
+import app.application.port.`in`.SlotView
+import app.application.port.out.CategoryRepository
+import app.application.port.out.SlotRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

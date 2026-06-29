@@ -1,6 +1,6 @@
 package app.adapter.`in`.web
 
-import app.domain.port.`in`.RegisterDeviceTokenUseCase
+import app.application.port.`in`.RegisterDeviceTokenUseCase
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

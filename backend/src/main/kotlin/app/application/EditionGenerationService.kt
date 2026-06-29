@@ -9,14 +9,14 @@ import app.domain.model.RawArticle
 import app.domain.service.ContentQuality
 import app.domain.service.Dedup
 import app.domain.service.Ranking
-import app.domain.port.`in`.GenerateEditionsUseCase
-import app.domain.port.`in`.GenerationSummary
-import app.domain.port.out.DeliveryTargetQuery
-import app.domain.port.out.EditionRepository
-import app.domain.port.out.EventPublisher
-import app.domain.port.out.FeedPort
-import app.domain.port.out.SummarizeInput
-import app.domain.port.out.SummarizerPort
+import app.application.port.`in`.GenerateEditionsUseCase
+import app.application.port.`in`.GenerationSummary
+import app.application.port.out.DeliveryTargetQuery
+import app.application.port.out.EditionRepository
+import app.application.port.out.EventPublisher
+import app.application.port.out.FeedPort
+import app.application.port.out.SummarizeInput
+import app.application.port.out.SummarizerPort
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 

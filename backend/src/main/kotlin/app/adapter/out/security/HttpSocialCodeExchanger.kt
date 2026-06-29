@@ -1,6 +1,6 @@
 package app.adapter.out.security
 
-import app.domain.port.out.SocialCodeExchanger
+import app.application.port.out.SocialCodeExchanger
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

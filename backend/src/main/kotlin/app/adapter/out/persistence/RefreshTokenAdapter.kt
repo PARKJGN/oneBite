@@ -1,6 +1,6 @@
 package app.adapter.out.persistence
 
-import app.domain.port.out.RefreshTokenStore
+import app.application.port.out.RefreshTokenStore
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType

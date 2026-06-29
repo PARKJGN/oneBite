@@ -1,13 +1,13 @@
 package app.application
 
-import app.domain.port.`in`.DispatchUseCase
-import app.domain.port.out.DeliveryTarget
-import app.domain.port.out.DeliveryTargetQuery
-import app.domain.port.out.EditionRepository
-import app.domain.port.out.EventPublisher
-import app.domain.port.out.PushDeliveryRepository
-import app.domain.port.out.PushJob
-import app.domain.port.out.PushJobPublisher
+import app.application.port.`in`.DispatchUseCase
+import app.application.port.out.DeliveryTarget
+import app.application.port.out.DeliveryTargetQuery
+import app.application.port.out.EditionRepository
+import app.application.port.out.EventPublisher
+import app.application.port.out.PushDeliveryRepository
+import app.application.port.out.PushJob
+import app.application.port.out.PushJobPublisher
 import app.domain.service.TimeWindow
 import org.springframework.stereotype.Service
 import java.time.Instant

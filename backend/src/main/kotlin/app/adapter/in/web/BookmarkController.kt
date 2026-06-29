@@ -1,7 +1,7 @@
 package app.adapter.`in`.web
 
-import app.domain.port.`in`.BookmarkUseCase
-import app.domain.port.`in`.BookmarkView
+import app.application.port.`in`.BookmarkUseCase
+import app.application.port.`in`.BookmarkView
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping

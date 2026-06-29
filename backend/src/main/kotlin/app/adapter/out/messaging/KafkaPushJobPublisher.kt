@@ -1,7 +1,7 @@
 package app.adapter.out.messaging
 
-import app.domain.port.out.PushJob
-import app.domain.port.out.PushJobPublisher
+import app.application.port.out.PushJob
+import app.application.port.out.PushJobPublisher
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.kafka.core.KafkaTemplate

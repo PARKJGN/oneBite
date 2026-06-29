@@ -1,10 +1,10 @@
 package app.application
 
-import app.domain.port.`in`.PasswordResetUseCase
-import app.domain.port.out.EmailSender
-import app.domain.port.out.PasswordHasher
-import app.domain.port.out.PasswordResetTokenStore
-import app.domain.port.out.UserRepository
+import app.application.port.`in`.PasswordResetUseCase
+import app.application.port.out.EmailSender
+import app.application.port.out.PasswordHasher
+import app.application.port.out.PasswordResetTokenStore
+import app.application.port.out.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

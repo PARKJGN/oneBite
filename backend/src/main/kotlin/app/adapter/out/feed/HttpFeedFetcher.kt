@@ -1,6 +1,6 @@
 package app.adapter.out.feed
 
-import app.domain.port.out.FeedFetcher
+import app.application.port.out.FeedFetcher
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.net.URI

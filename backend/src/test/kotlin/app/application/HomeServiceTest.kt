@@ -6,9 +6,9 @@ import app.domain.model.EditionItem
 import app.domain.model.Language
 import app.domain.model.Slot
 import app.domain.model.User
-import app.domain.port.out.EditionRepository
-import app.domain.port.out.SlotRepository
-import app.domain.port.out.UserRepository
+import app.application.port.out.EditionRepository
+import app.application.port.out.SlotRepository
+import app.application.port.out.UserRepository
 import app.domain.service.ComboKey
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

@@ -3,10 +3,10 @@ package app.application
 import app.domain.UserNotFoundException
 import app.domain.model.Language
 import app.domain.model.PushPermission
-import app.domain.port.`in`.ProfileUseCase
-import app.domain.port.`in`.ProfileView
-import app.domain.port.`in`.UpdateProfileCommand
-import app.domain.port.out.UserRepository
+import app.application.port.`in`.ProfileUseCase
+import app.application.port.`in`.ProfileView
+import app.application.port.`in`.UpdateProfileCommand
+import app.application.port.out.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

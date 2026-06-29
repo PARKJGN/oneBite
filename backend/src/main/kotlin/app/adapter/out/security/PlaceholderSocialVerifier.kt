@@ -1,8 +1,8 @@
 package app.adapter.out.security
 
-import app.domain.port.out.SocialCodeExchanger
-import app.domain.port.out.SocialIdentity
-import app.domain.port.out.SocialIdentityVerifier
+import app.application.port.out.SocialCodeExchanger
+import app.application.port.out.SocialIdentity
+import app.application.port.out.SocialIdentityVerifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 

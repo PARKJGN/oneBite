@@ -1,8 +1,8 @@
 package app.adapter.out.persistence
 
 import app.domain.model.Language
-import app.domain.port.out.RssSource
-import app.domain.port.out.RssSourceProvider
+import app.application.port.out.RssSource
+import app.application.port.out.RssSourceProvider
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType

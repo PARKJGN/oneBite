@@ -7,7 +7,7 @@ import app.domain.model.Edition
 import app.domain.model.EditionContent
 import app.domain.model.EditionItem
 import app.domain.model.Language
-import app.domain.port.out.EditionRepository
+import app.application.port.out.EditionRepository
 import app.domain.service.ComboKey
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse

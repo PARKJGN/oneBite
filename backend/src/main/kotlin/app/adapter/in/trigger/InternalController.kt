@@ -1,8 +1,8 @@
 package app.adapter.`in`.trigger
 
 import app.application.DispatchService
-import app.domain.port.`in`.GenerateEditionsUseCase
-import app.domain.port.`in`.GenerationSummary
+import app.application.port.`in`.GenerateEditionsUseCase
+import app.application.port.`in`.GenerationSummary
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping

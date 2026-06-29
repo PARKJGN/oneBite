@@ -1,8 +1,8 @@
 package app.adapter.`in`.web
 
-import app.domain.port.`in`.LibraryEditionView
-import app.domain.port.`in`.LibrarySlotView
-import app.domain.port.`in`.LibraryUseCase
+import app.application.port.`in`.LibraryEditionView
+import app.application.port.`in`.LibrarySlotView
+import app.application.port.`in`.LibraryUseCase
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping

@@ -9,9 +9,9 @@ import app.domain.model.Edition
 import app.domain.model.EditionContent
 import app.domain.model.EditionItem
 import app.domain.model.Language
-import app.domain.port.out.DeviceTokenRepository
-import app.domain.port.out.EditionRepository
-import app.domain.port.out.UserRepository
+import app.application.port.out.DeviceTokenRepository
+import app.application.port.out.EditionRepository
+import app.application.port.out.UserRepository
 import app.domain.service.ComboKey
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull

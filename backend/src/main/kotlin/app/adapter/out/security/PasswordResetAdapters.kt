@@ -1,9 +1,9 @@
 package app.adapter.out.security
 
 import app.domain.TooManyLoginAttemptsException
-import app.domain.port.out.EmailSender
-import app.domain.port.out.LoginAttemptGuard
-import app.domain.port.out.PasswordResetTokenStore
+import app.application.port.out.EmailSender
+import app.application.port.out.LoginAttemptGuard
+import app.application.port.out.PasswordResetTokenStore
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

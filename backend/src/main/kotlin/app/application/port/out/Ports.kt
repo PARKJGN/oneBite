@@ -1,4 +1,4 @@
-package app.domain.port.out
+package app.application.port.out
 
 import app.domain.model.Category
 import app.domain.model.Slot

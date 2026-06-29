@@ -1,7 +1,7 @@
 package app.adapter.`in`.web
 
-import app.domain.port.`in`.HomeUseCase
-import app.domain.port.`in`.YesterdayHighlightsView
+import app.application.port.`in`.HomeUseCase
+import app.application.port.`in`.YesterdayHighlightsView
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping

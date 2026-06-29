@@ -1,8 +1,8 @@
 package app.adapter.`in`.web
 
-import app.domain.port.`in`.SocialCodeLoginCommand
-import app.domain.port.`in`.SocialLoginCommand
-import app.domain.port.`in`.SocialLoginUseCase
+import app.application.port.`in`.SocialCodeLoginCommand
+import app.application.port.`in`.SocialLoginCommand
+import app.application.port.`in`.SocialLoginUseCase
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping

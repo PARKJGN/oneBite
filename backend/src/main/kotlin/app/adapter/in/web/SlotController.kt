@@ -1,8 +1,8 @@
 package app.adapter.`in`.web
 
 import app.domain.model.Language
-import app.domain.port.`in`.SlotUseCase
-import app.domain.port.out.CategoryRepository
+import app.application.port.`in`.SlotUseCase
+import app.application.port.out.CategoryRepository
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping

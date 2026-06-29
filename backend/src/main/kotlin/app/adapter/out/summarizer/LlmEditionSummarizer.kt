@@ -3,8 +3,8 @@ package app.adapter.out.summarizer
 import app.domain.model.EditionContent
 import app.domain.model.EditionItem
 import app.domain.model.Language
-import app.domain.port.out.SummarizeInput
-import app.domain.port.out.SummarizerPort
+import app.application.port.out.SummarizeInput
+import app.application.port.out.SummarizerPort
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue

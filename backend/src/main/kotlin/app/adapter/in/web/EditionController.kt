@@ -1,8 +1,8 @@
 package app.adapter.`in`.web
 
-import app.domain.port.`in`.EditionDetailView
-import app.domain.port.`in`.ReadEditionUseCase
-import app.domain.port.`in`.TodayView
+import app.application.port.`in`.EditionDetailView
+import app.application.port.`in`.ReadEditionUseCase
+import app.application.port.`in`.TodayView
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestHeader

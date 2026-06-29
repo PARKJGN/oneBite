@@ -1,7 +1,7 @@
 package app.adapter.out.messaging
 
-import app.domain.port.out.PushJob
-import app.domain.port.out.PushSender
+import app.application.port.out.PushJob
+import app.application.port.out.PushSender
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component

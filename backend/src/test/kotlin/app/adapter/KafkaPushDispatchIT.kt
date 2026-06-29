@@ -1,8 +1,8 @@
 package app.adapter
 
-import app.domain.port.out.PushJob
-import app.domain.port.out.PushJobPublisher
-import app.domain.port.out.PushSender
+import app.application.port.out.PushJob
+import app.application.port.out.PushJobPublisher
+import app.application.port.out.PushSender
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test

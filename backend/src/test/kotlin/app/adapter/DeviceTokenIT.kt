@@ -2,7 +2,7 @@ package app.adapter
 
 import app.adapter.`in`.web.AuthController
 import app.adapter.`in`.web.DeviceController
-import app.domain.port.out.DeviceTokenRepository
+import app.application.port.out.DeviceTokenRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

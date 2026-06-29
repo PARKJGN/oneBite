@@ -1,4 +1,4 @@
-package app.domain.port.`in`
+package app.application.port.`in`
 
 import java.time.LocalDate
 

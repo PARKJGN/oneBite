@@ -2,16 +2,16 @@ package app.application
 
 import app.domain.UserNotFoundException
 import app.domain.service.ComboKey
-import app.domain.port.`in`.EditionDetailView
-import app.domain.port.`in`.ItemView
-import app.domain.port.`in`.ReadEditionUseCase
-import app.domain.port.`in`.TodaySlotView
-import app.domain.port.`in`.TodayView
-import app.domain.port.out.CategoryRepository
-import app.domain.port.out.EditionRepository
-import app.domain.port.out.SlotRepository
-import app.domain.port.out.UserEditionStateRepository
-import app.domain.port.out.UserRepository
+import app.application.port.`in`.EditionDetailView
+import app.application.port.`in`.ItemView
+import app.application.port.`in`.ReadEditionUseCase
+import app.application.port.`in`.TodaySlotView
+import app.application.port.`in`.TodayView
+import app.application.port.out.CategoryRepository
+import app.application.port.out.EditionRepository
+import app.application.port.out.SlotRepository
+import app.application.port.out.UserEditionStateRepository
+import app.application.port.out.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Clock

@@ -2,12 +2,12 @@ package app.application
 
 import app.domain.UserNotFoundException
 import app.domain.service.ComboKey
-import app.domain.port.`in`.HighlightItemView
-import app.domain.port.`in`.HomeUseCase
-import app.domain.port.`in`.YesterdayHighlightsView
-import app.domain.port.out.EditionRepository
-import app.domain.port.out.SlotRepository
-import app.domain.port.out.UserRepository
+import app.application.port.`in`.HighlightItemView
+import app.application.port.`in`.HomeUseCase
+import app.application.port.`in`.YesterdayHighlightsView
+import app.application.port.out.EditionRepository
+import app.application.port.out.SlotRepository
+import app.application.port.out.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate

@@ -1,4 +1,4 @@
-package app.domain.port.`in`
+package app.application.port.`in`
 
 /** 인바운드(유스케이스) 포트 + 커맨드/결과. */
 

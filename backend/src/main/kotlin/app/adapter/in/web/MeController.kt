@@ -1,8 +1,8 @@
 package app.adapter.`in`.web
 
-import app.domain.port.`in`.ProfileUseCase
-import app.domain.port.`in`.ProfileView
-import app.domain.port.`in`.UpdateProfileCommand
+import app.application.port.`in`.ProfileUseCase
+import app.application.port.`in`.ProfileView
+import app.application.port.`in`.UpdateProfileCommand
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.RequestBody

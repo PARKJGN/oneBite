@@ -5,10 +5,10 @@ import app.domain.model.EditionContent
 import app.domain.model.EditionItem
 import app.domain.model.EditionStatus
 import app.domain.model.Language
-import app.domain.port.out.DeliveryTarget
-import app.domain.port.out.DeliveryTargetQuery
-import app.domain.port.out.EditionRepository
-import app.domain.port.out.UserEditionStateRepository
+import app.application.port.out.DeliveryTarget
+import app.application.port.out.DeliveryTargetQuery
+import app.application.port.out.EditionRepository
+import app.application.port.out.UserEditionStateRepository
 import app.domain.service.ComboKey
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue

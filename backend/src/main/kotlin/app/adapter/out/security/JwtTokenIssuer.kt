@@ -1,6 +1,6 @@
 package app.adapter.out.security
 
-import app.domain.port.out.TokenIssuer
+import app.application.port.out.TokenIssuer
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.slf4j.LoggerFactory

@@ -1,4 +1,4 @@
-package app.domain.port.out
+package app.application.port.out
 
 /** 기기 푸시 토큰 저장·조회(원칙 I·V). 발송 시 userId로 활성 토큰을 찾아 FCM/APNs로 전송. */
 interface DeviceTokenRepository {

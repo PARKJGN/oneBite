@@ -5,9 +5,9 @@ import app.domain.model.Language
 import app.domain.model.PushPermission
 import app.domain.model.Slot
 import app.domain.model.User
-import app.domain.port.out.CategoryRepository
-import app.domain.port.out.SlotRepository
-import app.domain.port.out.UserRepository
+import app.application.port.out.CategoryRepository
+import app.application.port.out.SlotRepository
+import app.application.port.out.UserRepository
 import org.springframework.stereotype.Component
 import java.time.Instant
 

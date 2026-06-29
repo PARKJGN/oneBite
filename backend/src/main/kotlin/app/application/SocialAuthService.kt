@@ -1,16 +1,16 @@
 package app.application
 
 import app.domain.model.User
-import app.domain.port.`in`.SocialCodeLoginCommand
-import app.domain.port.`in`.SocialLoginCommand
-import app.domain.port.`in`.SocialLoginResult
-import app.domain.port.`in`.SocialLoginUseCase
-import app.domain.port.out.RefreshTokenStore
-import app.domain.port.out.SocialCodeExchanger
-import app.domain.port.out.SocialIdentity
-import app.domain.port.out.SocialIdentityVerifier
-import app.domain.port.out.TokenIssuer
-import app.domain.port.out.UserRepository
+import app.application.port.`in`.SocialCodeLoginCommand
+import app.application.port.`in`.SocialLoginCommand
+import app.application.port.`in`.SocialLoginResult
+import app.application.port.`in`.SocialLoginUseCase
+import app.application.port.out.RefreshTokenStore
+import app.application.port.out.SocialCodeExchanger
+import app.application.port.out.SocialIdentity
+import app.application.port.out.SocialIdentityVerifier
+import app.application.port.out.TokenIssuer
+import app.application.port.out.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

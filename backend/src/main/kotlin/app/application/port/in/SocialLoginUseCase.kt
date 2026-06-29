@@ -1,4 +1,4 @@
-package app.domain.port.`in`
+package app.application.port.`in`
 
 /** 소셜 로그인(FR-001c) — provider 토큰 또는 웹 인가코드로 로그인/가입(upsert). */
 interface SocialLoginUseCase {

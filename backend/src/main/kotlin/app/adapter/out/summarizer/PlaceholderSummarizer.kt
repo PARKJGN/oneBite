@@ -2,8 +2,8 @@ package app.adapter.out.summarizer
 
 import app.domain.model.EditionContent
 import app.domain.model.EditionItem
-import app.domain.port.out.SummarizeInput
-import app.domain.port.out.SummarizerPort
+import app.application.port.out.SummarizeInput
+import app.application.port.out.SummarizerPort
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 

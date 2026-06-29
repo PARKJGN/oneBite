@@ -1,9 +1,9 @@
 package app.adapter.out.feed
 
 import app.domain.model.RawArticle
-import app.domain.port.out.FeedFetcher
-import app.domain.port.out.FeedPort
-import app.domain.port.out.RssSourceProvider
+import app.application.port.out.FeedFetcher
+import app.application.port.out.FeedPort
+import app.application.port.out.RssSourceProvider
 import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
 import org.slf4j.LoggerFactory

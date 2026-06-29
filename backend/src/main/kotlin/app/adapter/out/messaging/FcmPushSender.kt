@@ -1,8 +1,8 @@
 package app.adapter.out.messaging
 
-import app.domain.port.out.DeviceTokenRepository
-import app.domain.port.out.PushJob
-import app.domain.port.out.PushSender
+import app.application.port.out.DeviceTokenRepository
+import app.application.port.out.PushJob
+import app.application.port.out.PushSender
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
