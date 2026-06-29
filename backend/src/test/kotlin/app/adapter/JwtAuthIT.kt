@@ -1,10 +1,8 @@
 package app.adapter
 
 import app.adapter.`in`.web.AuthController
-import app.adapter.out.security.JwtTokenIssuer
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -14,9 +12,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
  */
 class JwtAuthIT : IntegrationTest() {
 
-    @Autowired lateinit var mockMvc: MockMvc
     @Autowired lateinit var auth: AuthController
-    @Autowired lateinit var jwt: JwtTokenIssuer
 
     @Test
     fun `보호 경로는 토큰 없으면 401, 유효 JWT면 200`() {
@@ -24,8 +20,7 @@ class JwtAuthIT : IntegrationTest() {
 
         mockMvc.perform(get("/me")).andExpect(status().isUnauthorized)
 
-        val token = jwt.issue(user.userId)
-        mockMvc.perform(get("/me").header("Authorization", "Bearer $token")).andExpect(status().isOk)
+        mockMvc.perform(get("/me").header("Authorization", bearer(user.userId))).andExpect(status().isOk)
     }
 
     @Test
