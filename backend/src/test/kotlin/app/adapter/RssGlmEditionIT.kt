@@ -43,7 +43,7 @@ class RssGlmEditionIT : IntegrationTest() {
         articles.take(20).forEach { println("- [${it.categoryCode}] ${it.title} (${it.source})") }
         assumeTrue(articles.isNotEmpty(), "RSS 기사 0건(피드 가용성/창?) — 건너뜀")
 
-        val top = Ranking.topClusters(Dedup.clusterByEvent(articles)).map { it.representative }
+        val top = Ranking.balancedTopClusters(Dedup.clusterByEvent(articles), categories).map { it.representative }
         println("=== 랭킹 상위 ${top.size}건 → GLM 요약 호출 ===")
 
         val base = System.getenv("GLM_BASE_URL")?.ifBlank { null } ?: "https://api.z.ai/api/paas/v4"

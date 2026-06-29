@@ -59,7 +59,7 @@ class EditionGenerationService(
                 }
                 val categoryCodes = comboKey.split("+").filter { it.isNotBlank() }
                 val articles = categoryCodes.flatMap { feed.fetch(it, since, until) }
-                val top = Ranking.topClusters(Dedup.clusterByEvent(articles))
+                val top = Ranking.balancedTopClusters(Dedup.clusterByEvent(articles), categoryCodes)
 
                 // 1) AI 요약 시도(+품질검증). 실패(호출 오류·품질 미달) 시 null → 폴백 사다리로.
                 val aiContent: EditionContent? =
