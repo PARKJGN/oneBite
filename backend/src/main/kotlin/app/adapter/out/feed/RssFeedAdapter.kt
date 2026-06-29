@@ -37,7 +37,10 @@ class RssFeedAdapter(
         untilUtc: Instant,
         sourceUrl: String,
     ): List<RawArticle> = try {
-        val feed = SyndFeedInput().build(XmlReader(ByteArrayInputStream(body.toByteArray(Charsets.UTF_8))))
+        // 일부 피드(매경 등)는 타임존을 '+09:00'(콜론)으로 준다 → ROME(RFC822 '+0900')가 못 읽어 발행일 null → 제외됨.
+        // pubDate 류 "HH:MM:SS +09:00" 패턴의 타임존 콜론만 제거해 정규화한다.
+        val normalized = body.replace(Regex("(\\d{2}:\\d{2}:\\d{2} [+-]\\d{2}):(\\d{2})"), "$1$2")
+        val feed = SyndFeedInput().build(XmlReader(ByteArrayInputStream(normalized.toByteArray(Charsets.UTF_8))))
         val sourceName = feed.title?.takeIf { it.isNotBlank() } ?: hostOf(sourceUrl)
         feed.entries.mapNotNull { e ->
             val title = e.title?.trim().orEmpty()

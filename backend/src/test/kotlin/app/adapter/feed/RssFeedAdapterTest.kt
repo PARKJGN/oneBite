@@ -51,6 +51,16 @@ class RssFeedAdapterTest {
     }
 
     @Test
+    fun `타임존 콜론 형식(+09콜론00)도 파싱한다 (매경 등)`() {
+        val xml = rss(item("매경식", "Sun, 28 Jun 2026 16:49:26 +09:00"))
+        val adapter = RssFeedAdapter(sources, FeedFetcher { xml })
+        val articles = adapter.fetch(
+            "realestate", Instant.parse("2026-06-28T00:00:00Z"), Instant.parse("2026-06-30T00:00:00Z"),
+        )
+        assertEquals(listOf("매경식"), articles.map { it.title }) // 발행일 파싱 실패 시 0건 → 실패
+    }
+
+    @Test
     fun `fetch 실패(null)면 해당 소스는 건너뛴다`() {
         val adapter = RssFeedAdapter(sources, FeedFetcher { null })
         assertTrue(adapter.fetch("economy", Instant.EPOCH, until).isEmpty())
