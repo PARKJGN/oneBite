@@ -8,6 +8,9 @@ interface AuthUseCase {
     fun login(cmd: LoginCommand): LoginResult
     fun refresh(refreshToken: String): TokenPair                      // refresh 토큰 회전 → 새 access/refresh
     fun logout(refreshToken: String)                                 // 제시한 refresh 토큰 폐기
+}
+
+interface PasswordResetUseCase {
     fun requestPasswordReset(username: String)                       // 복구 이메일로 재설정 링크 발송
     fun confirmPasswordReset(resetToken: String, newPassword: String) // 토큰 검증 후 비밀번호 변경
 }

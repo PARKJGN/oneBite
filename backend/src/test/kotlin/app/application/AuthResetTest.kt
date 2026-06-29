@@ -61,7 +61,7 @@ class AuthResetTest {
     fun `복구 이메일이 있으면 재설정 링크를 보내고, 토큰으로 비밀번호를 바꾼다`() {
         val users = FakeUsers(User(1, "alice", "H:old", "앨리스", recoveryEmail = "a@b.com"))
         val captured = mutableListOf<Pair<String, String>>()
-        val svc = AuthService(users, hasher, tokens, resetTokens, EmailSender { e, t -> captured += e to t }, refreshTokens, loginGuard)
+        val svc = PasswordResetService(users, hasher, resetTokens, EmailSender { e, t -> captured += e to t })
 
         svc.requestPasswordReset("alice")
         assertEquals(1, captured.size)
@@ -75,7 +75,7 @@ class AuthResetTest {
     fun `복구 이메일이 없으면 메일을 보내지 않는다`() {
         val users = FakeUsers(User(1, "bob", "H:old", "밥", recoveryEmail = null))
         val captured = mutableListOf<Pair<String, String>>()
-        AuthService(users, hasher, tokens, resetTokens, EmailSender { e, t -> captured += e to t }, refreshTokens, loginGuard)
+        PasswordResetService(users, hasher, resetTokens, EmailSender { e, t -> captured += e to t })
             .requestPasswordReset("bob")
         assertTrue(captured.isEmpty())
     }
@@ -83,7 +83,7 @@ class AuthResetTest {
     @Test
     fun `유효하지 않은 토큰으로 재설정하면 거부된다`() {
         val users = FakeUsers(User(1, "alice", "H:old", "앨리스", recoveryEmail = "a@b.com"))
-        val svc = AuthService(users, hasher, tokens, resetTokens, EmailSender { _, _ -> }, refreshTokens, loginGuard)
+        val svc = PasswordResetService(users, hasher, resetTokens, EmailSender { _, _ -> })
         assertThrows(IllegalArgumentException::class.java) { svc.confirmPasswordReset("bogus", "newpass12") }
         assertNull(resetTokens.consume("bogus"))
     }
@@ -92,7 +92,7 @@ class AuthResetTest {
     fun `로그인 연속 실패가 임계치를 넘으면 계정이 잠긴다`() {
         val users = FakeUsers(User(1, "alice", "H:secret123", "앨리스"))
         val guard = InMemoryLoginAttemptGuard(maxAttempts = 3, lockMinutes = 15)
-        val svc = AuthService(users, hasher, tokens, resetTokens, EmailSender { _, _ -> }, refreshTokens, guard)
+        val svc = AuthService(users, hasher, tokens, refreshTokens, guard)
 
         // 3회 연속 실패 → 잠금 발동
         repeat(3) {

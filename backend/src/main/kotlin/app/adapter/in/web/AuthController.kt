@@ -2,6 +2,7 @@ package app.adapter.`in`.web
 
 import app.domain.port.`in`.AuthUseCase
 import app.domain.port.`in`.LoginCommand
+import app.domain.port.`in`.PasswordResetUseCase
 import app.domain.port.`in`.SignupCommand
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
@@ -14,7 +15,10 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/auth")
-class AuthController(private val auth: AuthUseCase) {
+class AuthController(
+    private val auth: AuthUseCase,
+    private val passwordReset: PasswordResetUseCase,
+) {
 
     data class SignupRequest(
         val username: String,
@@ -65,11 +69,11 @@ class AuthController(private val auth: AuthUseCase) {
     @PostMapping("/password-reset/request")
     @ResponseStatus(HttpStatus.ACCEPTED)
     fun resetRequest(@RequestBody req: ResetRequest) {
-        auth.requestPasswordReset(req.username) // 존재 여부 비노출, 항상 202
+        passwordReset.requestPasswordReset(req.username) // 존재 여부 비노출, 항상 202
     }
 
     @PostMapping("/password-reset/confirm")
     fun resetConfirm(@RequestBody req: ResetConfirm) {
-        auth.confirmPasswordReset(req.resetToken, req.newPassword)
+        passwordReset.confirmPasswordReset(req.resetToken, req.newPassword)
     }
 }
