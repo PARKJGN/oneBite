@@ -9,37 +9,13 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 
 /**
  * 회귀(LazyInitializationException): findEligibleTargets는 슬롯의 지연 컬렉션(categoryCodes)을
  * 세션 안에서 읽어야 한다(OSIV off). 이 테스트는 @Transactional 없이 호출하므로,
  * 어댑터의 @Transactional(readOnly=true)이 빠지면 LazyInitializationException으로 실패한다.
  */
-@Testcontainers(disabledWithoutDocker = true)
-@SpringBootTest
-class DeliveryTargetEligibilityIT {
-
-    companion object {
-        @Container @JvmStatic
-        val postgres = PostgreSQLContainer("postgres:16")
-            .withDatabaseName("onebite").withUsername("onebite").withPassword("onebite")
-
-        @JvmStatic @DynamicPropertySource
-        fun props(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url", postgres::getJdbcUrl)
-            registry.add("spring.datasource.username", postgres::getUsername)
-            registry.add("spring.datasource.password", postgres::getPassword)
-            registry.add("spring.autoconfigure.exclude") {
-                "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
-            }
-        }
-    }
+class DeliveryTargetEligibilityIT : IntegrationTest() {
 
     @Autowired lateinit var auth: AuthController
     @Autowired lateinit var me: MeController

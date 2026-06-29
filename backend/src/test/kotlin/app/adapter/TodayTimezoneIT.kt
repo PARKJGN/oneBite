@@ -13,15 +13,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Primary
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -32,30 +26,12 @@ import java.time.ZoneOffset
  * 고정 Clock: UTC 2026-06-24T20:00 → Asia/Seoul 2026-06-25T05:00 (KST 날짜 06-25, UTC 날짜 06-24).
  * today()가 UTC를 쓰면 06-24로 조회 → 에디션(06-25) 못 찾아 실패. 사용자 TZ면 06-25로 찾아 성공.
  */
-@Testcontainers(disabledWithoutDocker = true)
-@SpringBootTest
-class TodayTimezoneIT {
+class TodayTimezoneIT : IntegrationTest() {
 
     @TestConfiguration
     class FixedClockConfig {
         @Bean @Primary
         fun fixedClock(): Clock = Clock.fixed(Instant.parse("2026-06-24T20:00:00Z"), ZoneOffset.UTC)
-    }
-
-    companion object {
-        @Container @JvmStatic
-        val postgres = PostgreSQLContainer("postgres:16")
-            .withDatabaseName("onebite").withUsername("onebite").withPassword("onebite")
-
-        @JvmStatic @DynamicPropertySource
-        fun props(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url", postgres::getJdbcUrl)
-            registry.add("spring.datasource.username", postgres::getUsername)
-            registry.add("spring.datasource.password", postgres::getPassword)
-            registry.add("spring.autoconfigure.exclude") {
-                "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
-            }
-        }
     }
 
     @Autowired lateinit var auth: AuthController

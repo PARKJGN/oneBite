@@ -16,35 +16,11 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.LocalDate
 import java.time.ZoneId
 
 /** US2 통합 테스트(T040): 실제 Postgres+Flyway에서 오늘 발송분 열람·읽음 기록. */
-@Testcontainers(disabledWithoutDocker = true)
-@SpringBootTest
-class EditionReadIT {
-
-    companion object {
-        @Container @JvmStatic
-        val postgres = PostgreSQLContainer("postgres:16")
-            .withDatabaseName("onebite").withUsername("onebite").withPassword("onebite")
-
-        @JvmStatic @DynamicPropertySource
-        fun props(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url", postgres::getJdbcUrl)
-            registry.add("spring.datasource.username", postgres::getUsername)
-            registry.add("spring.datasource.password", postgres::getPassword)
-            registry.add("spring.autoconfigure.exclude") {
-                "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
-            }
-        }
-    }
+class EditionReadIT : IntegrationTest() {
 
     @Autowired lateinit var auth: AuthController
     @Autowired lateinit var slot: SlotController

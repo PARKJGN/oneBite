@@ -15,35 +15,11 @@ import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.LocalDate
 import java.time.ZoneOffset
 
 /** 라이브러리(FR-011c) + 소프트 삭제(FR-003b) + 읽음 노출(FR-020) 통합 테스트. */
-@Testcontainers(disabledWithoutDocker = true)
-@SpringBootTest
-class LibraryIT {
-
-    companion object {
-        @Container @JvmStatic
-        val postgres = PostgreSQLContainer("postgres:16")
-            .withDatabaseName("onebite").withUsername("onebite").withPassword("onebite")
-
-        @JvmStatic @DynamicPropertySource
-        fun props(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url", postgres::getJdbcUrl)
-            registry.add("spring.datasource.username", postgres::getUsername)
-            registry.add("spring.datasource.password", postgres::getPassword)
-            registry.add("spring.autoconfigure.exclude") {
-                "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
-            }
-        }
-    }
+class LibraryIT : IntegrationTest() {
 
     @Autowired lateinit var auth: AuthController
     @Autowired lateinit var slot: SlotController

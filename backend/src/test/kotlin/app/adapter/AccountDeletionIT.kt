@@ -18,35 +18,11 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.LocalDate
 import java.time.ZoneOffset
 
 /** 탈퇴(FR-018a): 개인정보·슬롯 삭제, 공유 Edition은 보존. */
-@Testcontainers(disabledWithoutDocker = true)
-@SpringBootTest
-class AccountDeletionIT {
-
-    companion object {
-        @Container @JvmStatic
-        val postgres = PostgreSQLContainer("postgres:16")
-            .withDatabaseName("onebite").withUsername("onebite").withPassword("onebite")
-
-        @JvmStatic @DynamicPropertySource
-        fun props(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url", postgres::getJdbcUrl)
-            registry.add("spring.datasource.username", postgres::getUsername)
-            registry.add("spring.datasource.password", postgres::getPassword)
-            registry.add("spring.autoconfigure.exclude") {
-                "org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
-            }
-        }
-    }
+class AccountDeletionIT : IntegrationTest() {
 
     @Autowired lateinit var auth: AuthController
     @Autowired lateinit var slot: SlotController
