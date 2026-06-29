@@ -6,7 +6,6 @@ import app.adapter.out.summarizer.OpenAiCompatChatClient
 import app.domain.model.Language
 import app.domain.model.RawArticle
 import app.application.port.out.SummarizeInput
-import app.domain.service.ContentQuality
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
@@ -53,7 +52,7 @@ class LiveSummarizerIT {
         println("=== provider: $provider ===")
         println(om.writerWithDefaultPrettyPrinter().writeValueAsString(content))
 
-        assertDoesNotThrow { ContentQuality.validate(content) }
+        assertDoesNotThrow { content.validate() }
         val inputUrls = input.articles.map { it.url }.toSet()
         check(content.items.isNotEmpty()) { "items 가 비어 있음" }
         content.items.forEach { check(it.url in inputUrls) { "지어낸 URL 발견: ${it.url}" } }

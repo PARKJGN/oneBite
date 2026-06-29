@@ -5,7 +5,6 @@ import app.adapter.out.summarizer.LlmEditionSummarizer
 import app.domain.model.Language
 import app.domain.model.RawArticle
 import app.application.port.out.SummarizeInput
-import app.domain.service.ContentQuality
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
@@ -41,7 +40,7 @@ class LlmEditionSummarizerTest {
         assertEquals("한국은행이 기준금리를 동결했다", content.oneLine)
         assertEquals(1, content.items.size)
         assertEquals("https://x/a", content.items.first().url)
-        assertDoesNotThrow { ContentQuality.validate(content) }
+        assertDoesNotThrow { content.validate() }
     }
 
     @Test

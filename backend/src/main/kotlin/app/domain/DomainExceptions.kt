@@ -15,3 +15,7 @@ class UnknownCategoryException(codes: Collection<String>) :
 
 class UserNotFoundException(userId: Long) :
     RuntimeException("사용자를 찾을 수 없습니다: $userId")
+
+/** 요약 콘텐츠 품질 불변식 위반(EditionContent.validate) → 재생성/폴백 트리거. */
+class LowQualityContentException(reason: String) :
+    RuntimeException("요약 품질 기준 미달: $reason")

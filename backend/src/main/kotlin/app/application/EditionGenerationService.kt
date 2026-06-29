@@ -6,7 +6,6 @@ import app.domain.model.EditionItem
 import app.domain.model.EditionStatus
 import app.domain.model.Language
 import app.domain.model.RawArticle
-import app.domain.service.ContentQuality
 import app.domain.service.Dedup
 import app.domain.service.Ranking
 import app.application.port.`in`.GenerateEditionsUseCase
@@ -62,7 +61,7 @@ class EditionGenerationService(
                     if (top.isEmpty()) null
                     else runCatching {
                         val c = summarizer.summarize(SummarizeInput(categoryCodes, language, top.map { it.representative }))
-                        ContentQuality.validate(c)
+                        c.validate()
                         c
                     }.getOrElse { e ->
                         events.emit("ai_failure", mapOf("combo" to comboKey, "reason" to (e.message ?: "unknown")))

@@ -5,8 +5,7 @@ import app.domain.model.EditionContent
 import app.domain.model.EditionItem
 import app.domain.model.Language
 import app.domain.model.RawArticle
-import app.domain.service.ContentQuality
-import app.domain.service.LowQualityContentException
+import app.domain.LowQualityContentException
 import app.domain.service.Ranking
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -25,25 +24,25 @@ class ContentQualityAndRankingTest {
 
     @Test
     fun `정상 콘텐츠는 통과한다`() {
-        assertDoesNotThrow { ContentQuality.validate(content()) }
+        assertDoesNotThrow { content().validate() }
     }
 
     @Test
     fun `한줄평이 비면 거부`() {
-        assertThrows(LowQualityContentException::class.java) { ContentQuality.validate(content(oneLine = "")) }
+        assertThrows(LowQualityContentException::class.java) { content(oneLine = "").validate() }
     }
 
     @Test
     fun `filler 상투구가 있으면 거부 (XII)`() {
         assertThrows(LowQualityContentException::class.java) {
-            ContentQuality.validate(content(oneLine = "이번 사안은 큰 영향을 미칠 것으로 예상됩니다"))
+            content(oneLine = "이번 사안은 큰 영향을 미칠 것으로 예상됩니다").validate()
         }
     }
 
     @Test
     fun `항목이 상한을 넘으면 거부`() {
         assertThrows(LowQualityContentException::class.java) {
-            ContentQuality.validate(content(items = (1..6).map { item() }))
+            content(items = (1..6).map { item() }).validate()
         }
     }
 
