@@ -49,7 +49,7 @@ data class EditionContent(
     fun isValid(): Boolean = runCatching { validate() }.isSuccess
 
     companion object {
-        const val MAX_ITEMS = 5 // 슬롯당 항목 상한(4~5, 헌법)
+        const val MAX_ITEMS = 20 // 슬롯당 항목 상한(랭킹 DEFAULT_LIMIT 과 일치시킬 것)
         private val FILLER = listOf(
             "큰 영향을 미칠 것으로 예상", "귀추가 주목", "중요한 의미를 갖", "관심이 모아지고 있",
         )

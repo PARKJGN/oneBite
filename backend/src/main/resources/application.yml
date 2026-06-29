@@ -29,7 +29,7 @@ onebite:
   history:
     retention-days: 90               # 히스토리 보관(책갈피는 영구)
   edition:
-    items-per-slot: 5                # 슬롯당 항목 상한(4~5)
+    items-per-slot: 20               # 슬롯당 항목 상한(문서용 — 실제 enforce는 Ranking.DEFAULT_LIMIT/EditionContent.MAX_ITEMS 상수)
   summarizer: placeholder            # placeholder(기본) | glm
   social: placeholder                # placeholder(기본) | http (실 OAuth UserInfo 검증 + 웹 code 교환)
   oauth:                             # 웹 소셜 code 교환용(onebite.social=http). secret은 서버에만.

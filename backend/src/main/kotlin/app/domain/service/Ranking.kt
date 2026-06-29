@@ -7,7 +7,7 @@ import app.domain.model.ArticleCluster
  * 편집 주관 판단은 사용하지 않는다(Non-Goals 일관).
  */
 object Ranking {
-    const val DEFAULT_LIMIT = 5
+    const val DEFAULT_LIMIT = 20
 
     /** 보도량(군집크기) 우선, 동률은 최신성. */
     private val byImportance: Comparator<ArticleCluster> =

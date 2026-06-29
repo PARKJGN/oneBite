@@ -42,7 +42,7 @@ class ContentQualityAndRankingTest {
     @Test
     fun `항목이 상한을 넘으면 거부`() {
         assertThrows(LowQualityContentException::class.java) {
-            content(items = (1..6).map { item() }).validate()
+            content(items = (1..21).map { item() }).validate() // MAX_ITEMS(20) 초과
         }
     }
 
