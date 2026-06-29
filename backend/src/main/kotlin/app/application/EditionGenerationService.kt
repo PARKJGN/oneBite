@@ -1,5 +1,6 @@
 package app.application
 
+import app.domain.model.CrossInsight
 import app.domain.model.Edition
 import app.domain.model.EditionContent
 import app.domain.model.EditionItem
@@ -111,8 +112,8 @@ class EditionGenerationService(
         return EditionContent(
             oneLine = items.firstOrNull()?.title ?: note,
             marketSummary = listOf(note),
-            crossInsight = null,
-            items = items,
+            // 폴백도 비지 않게 단일 '주요 소식' 섹션으로 헤드라인을 담는다(품질검증 대상 아님).
+            crossInsights = listOf(CrossInsight(headline = "주요 소식", body = note, items = items)),
             references = items.map { it.source }.distinct(),
         )
     }

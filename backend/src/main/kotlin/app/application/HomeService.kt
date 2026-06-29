@@ -32,7 +32,7 @@ class HomeService(
         val combos = slots.findAllByUserId(userId).map { ComboKey.of(it.categoryCodes) }.distinct()
         val all: List<HighlightItemView> = combos.flatMap { combo ->
             val edition = editions.findByKey(combo, user.outputLanguage, yesterday) ?: return@flatMap emptyList()
-            edition.content.items.map { HighlightItemView(it.title, it.source, it.categoryCode, edition.id!!, it.url) }
+            edition.content.allItems().map { HighlightItemView(it.title, it.source, it.categoryCode, edition.id!!, it.url) }
         }
 
         val totalItems = all.size

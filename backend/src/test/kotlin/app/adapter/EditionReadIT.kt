@@ -6,6 +6,7 @@ import app.application.port.`in`.EditionDetailView
 import app.application.port.`in`.TodayView
 import app.domain.model.Edition
 import app.domain.model.EditionContent
+import app.domain.model.CrossInsight
 import app.domain.model.EditionItem
 import app.domain.model.Language
 import app.application.port.out.EditionRepository
@@ -43,8 +44,13 @@ class EditionReadIT : IntegrationTest() {
                 content = EditionContent(
                     oneLine = "금리 동결과 거래 회복이 맞물린 하루",
                     marketSummary = listOf("맥락·영향 설명 단락"),
-                    crossInsight = "정치+경제 연결 인사이트",
-                    items = listOf(EditionItem("기준금리 동결", "한국은행", "https://x", "economy")),
+                    crossInsights = listOf(
+                        CrossInsight(
+                            headline = "정치+경제 연결 인사이트",
+                            body = "원구성 지연과 금리 동결이 맞물린 흐름",
+                            items = listOf(EditionItem("기준금리 동결", "한국은행", "https://x", "economy")),
+                        ),
+                    ),
                     references = listOf("한국은행"),
                 ),
             ),
@@ -57,9 +63,10 @@ class EditionReadIT : IntegrationTest() {
         assertFalse(today1.slots.single().read) // 읽기 전 read=false
 
         val detail = objectMapper.readValue<EditionDetailView>(getBody("/editions/${saved.id}", user.userId))
-        assertNotNull(detail.crossInsight)
+        assertEquals(1, detail.crossInsights.size)
+        assertEquals("정치+경제 연결 인사이트", detail.crossInsights.single().headline)
         assertEquals("금리 동결과 거래 회복이 맞물린 하루", detail.oneLine)
-        assertEquals(1, detail.items.size)
+        assertEquals(1, detail.crossInsights.single().items.size)
 
         // 상세 열람 후 today read=true (FR-020 노출)
         val today2 = objectMapper.readValue<TodayView>(getBody("/today", user.userId))

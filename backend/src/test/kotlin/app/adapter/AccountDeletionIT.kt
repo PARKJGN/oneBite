@@ -9,6 +9,7 @@ import app.application.port.out.EditionRepository
 import app.application.port.out.UserRepository
 import app.domain.model.Edition
 import app.domain.model.EditionContent
+import app.domain.model.CrossInsight
 import app.domain.model.EditionItem
 import app.domain.model.Language
 import app.domain.service.ComboKey
@@ -41,7 +42,7 @@ class AccountDeletionIT : IntegrationTest() {
         val combo = ComboKey.of(listOf("politics", "economy"))
         val ed = editions.save(
             Edition(null, combo, Language.KO, today,
-                EditionContent("핵심", listOf("요약"), null, listOf(EditionItem("t", "s", "u", "politics")), listOf("s"))),
+                EditionContent("핵심", listOf("요약"), listOf(CrossInsight("주요 소식", "본문", listOf(EditionItem("t", "s", "u", "politics")))), listOf("s"))),
         )
         editionApi.edition(user.userId, ed.id!!) // 읽음 상태 생성
         device.register(user.userId, DeviceController.RegisterRequest("tok-dave", "android")) // 기기 토큰 등록

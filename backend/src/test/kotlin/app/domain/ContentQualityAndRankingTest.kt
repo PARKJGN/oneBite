@@ -1,6 +1,7 @@
 package app.domain
 
 import app.domain.model.ArticleCluster
+import app.domain.model.CrossInsight
 import app.domain.model.EditionContent
 import app.domain.model.EditionItem
 import app.domain.model.Language
@@ -20,7 +21,7 @@ class ContentQualityAndRankingTest {
         oneLine: String = "핵심: 무언가",
         summary: List<String> = listOf("맥락과 영향 설명"),
         items: List<EditionItem> = listOf(item()),
-    ) = EditionContent(oneLine, summary, null, items, listOf("출처"))
+    ) = EditionContent(oneLine, summary, listOf(CrossInsight("주요 소식", "본문", items)), listOf("출처"))
 
     @Test
     fun `정상 콘텐츠는 통과한다`() {

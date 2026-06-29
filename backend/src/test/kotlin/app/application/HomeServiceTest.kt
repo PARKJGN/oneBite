@@ -1,5 +1,6 @@
 package app.application
 
+import app.domain.model.CrossInsight
 import app.domain.model.Edition
 import app.domain.model.EditionContent
 import app.domain.model.EditionItem
@@ -42,8 +43,8 @@ class HomeServiceTest {
 
     private fun editionWith(combo: String, n: Int) = Edition(
         id = combo.hashCode().toLong(), comboKey = combo, language = Language.KO, issueDate = yesterday,
-        content = EditionContent("핵심", listOf("요약"), null,
-            (1..n).map { EditionItem("t$it", "s", "u", "politics") }, listOf("s")),
+        content = EditionContent("핵심", listOf("요약"),
+            listOf(CrossInsight("주요 소식", "본문", (1..n).map { EditionItem("t$it", "s", "u", "politics") })), listOf("s")),
     )
 
     private val editions = object : EditionRepository {

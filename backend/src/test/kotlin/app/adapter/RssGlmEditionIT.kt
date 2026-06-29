@@ -57,11 +57,11 @@ class RssGlmEditionIT : IntegrationTest() {
         // 실 DB 에 넣을 수 있는 INSERT SQL
         val combo = ComboKey.of(categories) // politics+realestate
         fun q(s: String) = "'" + s.replace("'", "''") + "'"
-        val crossSql = content.crossInsight?.let { q(it) } ?: "NULL"
+        val crossSql = q(objectMapper.writeValueAsString(content.crossInsights))
         val sql = "INSERT INTO editions (combo_key, language, issue_date, one_line, market_summary, cross_insight, items, refs, status)\n" +
             "VALUES (${q(combo)}, 'ko', CURRENT_DATE, ${q(content.oneLine)}, " +
             "${q(objectMapper.writeValueAsString(content.marketSummary))}, $crossSql, " +
-            "${q(objectMapper.writeValueAsString(content.items))}, " +
+            "${q(objectMapper.writeValueAsString(content.allItems()))}, " +
             "${q(objectMapper.writeValueAsString(content.references))}, 'ready')\n" +
             "ON CONFLICT (combo_key, language, issue_date) DO NOTHING;"
         println("=== 시드 SQL (실 DB 적용용) ===")

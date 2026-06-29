@@ -4,6 +4,7 @@ import app.adapter.`in`.web.AuthController
 import app.application.port.out.EditionRepository
 import app.domain.model.Edition
 import app.domain.model.EditionContent
+import app.domain.model.CrossInsight
 import app.domain.model.EditionItem
 import app.domain.model.Language
 import app.domain.service.ComboKey
@@ -31,7 +32,7 @@ class BookmarkIT : IntegrationTest() {
         val ed = editions.save(
             Edition(
                 id = null, comboKey = ComboKey.of(listOf("politics", "economy")), language = Language.KO, issueDate = today,
-                content = EditionContent("정치+경제 핵심", listOf("요약"), null, listOf(EditionItem("t", "s", "u", "politics")), listOf("s")),
+                content = EditionContent("정치+경제 핵심", listOf("요약"), listOf(CrossInsight("주요 소식", "본문", listOf(EditionItem("t", "s", "u", "politics")))), listOf("s")),
             ),
         )
         val id = ed.id!!

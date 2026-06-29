@@ -1,8 +1,8 @@
 package app.adapter.out.persistence
 
+import app.domain.model.CrossInsight
 import app.domain.model.Edition
 import app.domain.model.EditionContent
-import app.domain.model.EditionItem
 import app.domain.model.EditionStatus
 import app.domain.model.Language
 import app.application.port.out.DeliveryTarget
@@ -44,8 +44,8 @@ class EditionPersistenceAdapter(
             issueDate = edition.issueDate,
             oneLine = edition.content.oneLine,
             marketSummary = om.writeValueAsString(edition.content.marketSummary),
-            crossInsight = edition.content.crossInsight,
-            items = om.writeValueAsString(edition.content.items),
+            crossInsight = om.writeValueAsString(edition.content.crossInsights), // JSON 배열(CrossInsight)
+            items = om.writeValueAsString(edition.content.allItems()),            // 평탄화(컬럼 NOT NULL 만족·참고용)
             refs = om.writeValueAsString(edition.content.references),
             status = edition.status.name.lowercase(),
         )
@@ -60,8 +60,7 @@ class EditionPersistenceAdapter(
         content = EditionContent(
             oneLine = oneLine,
             marketSummary = om.readValue(marketSummary),
-            crossInsight = crossInsight,
-            items = om.readValue<List<EditionItem>>(items),
+            crossInsights = crossInsight?.let { om.readValue<List<CrossInsight>>(it) } ?: emptyList(),
             references = om.readValue(refs),
         ),
         status = EditionStatus.valueOf(status.uppercase()),

@@ -3,6 +3,7 @@ package app.application
 import app.domain.UserNotFoundException
 import app.domain.service.ComboKey
 import app.application.port.`in`.EditionDetailView
+import app.application.port.`in`.InsightView
 import app.application.port.`in`.ItemView
 import app.application.port.`in`.ReadEditionUseCase
 import app.application.port.`in`.TodaySlotView
@@ -79,8 +80,9 @@ class EditionReadService(
             issueDate = e.issueDate,
             oneLine = e.content.oneLine,
             marketSummary = e.content.marketSummary,
-            crossInsight = e.content.crossInsight,
-            items = e.content.items.map { ItemView(it.title, it.source, it.url, it.categoryCode) },
+            crossInsights = e.content.crossInsights.map { ci ->
+                InsightView(ci.headline, ci.body, ci.items.map { ItemView(it.title, it.source, it.url, it.categoryCode) })
+            },
             references = e.content.references,
             bookmarked = states.isBookmarked(userId, editionId),
         )

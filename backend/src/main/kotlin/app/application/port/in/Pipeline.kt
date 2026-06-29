@@ -43,9 +43,9 @@ data class EditionDetailView(
     val issueDate: LocalDate,
     val oneLine: String,
     val marketSummary: List<String>,
-    val crossInsight: String?,
-    val items: List<ItemView>,
+    val crossInsights: List<InsightView>, // 복합정보 0~3개(각자 관련 기사 보유)
     val references: List<String>,
     val bookmarked: Boolean, // 책갈피 상태(FR-011b)
 )
+data class InsightView(val headline: String, val body: String, val items: List<ItemView>)
 data class ItemView(val title: String, val source: String, val url: String, val categoryCode: String)

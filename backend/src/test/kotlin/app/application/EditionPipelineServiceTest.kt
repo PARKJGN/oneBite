@@ -1,5 +1,6 @@
 package app.application
 
+import app.domain.model.CrossInsight
 import app.domain.model.Edition
 import app.domain.model.EditionContent
 import app.domain.model.EditionItem
@@ -52,7 +53,7 @@ class EditionPipelineServiceTest {
         override fun purgeOlderThan(cutoffUtc: Instant) = 0
     }
     private val summarizer = SummarizerPort { input: SummarizeInput ->
-        EditionContent("핵심", listOf("요약"), null, input.articles.map { EditionItem(it.title, it.source, it.url, it.categoryCode) }, listOf("연합"))
+        EditionContent("핵심", listOf("요약"), listOf(CrossInsight("주요 소식", "본문", input.articles.map { EditionItem(it.title, it.source, it.url, it.categoryCode) })), listOf("연합"))
     }
     private val failingSummarizer = SummarizerPort { _: SummarizeInput -> throw RuntimeException("LLM 실패") }
     private val noEvents = EventPublisher { _, _ -> }
@@ -63,7 +64,7 @@ class EditionPipelineServiceTest {
         override fun record(userId: Long, issueDate: LocalDate, scheduledAtUtc: Instant) { recorded += (userId to issueDate) }
     }
     private fun editionAt(editions: FakeEditions, d: LocalDate = date) =
-        editions.save(Edition(null, "politics", Language.KO, d, EditionContent("핵심", listOf("요약"), null, listOf(EditionItem("t", "s", "u", "politics")), listOf("s"))))
+        editions.save(Edition(null, "politics", Language.KO, d, EditionContent("핵심", listOf("요약"), listOf(CrossInsight("주요 소식", "본문", listOf(EditionItem("t", "s", "u", "politics")))), listOf("s"))))
 
     @Test
     fun `신규 조합은 생성된다`() {
@@ -78,7 +79,7 @@ class EditionPipelineServiceTest {
     @Test
     fun `이미 있는 조합은 재사용되어 재생성하지 않는다 (FR-015a)`() {
         val editions = FakeEditions()
-        editions.save(Edition(null, "politics", Language.KO, date, EditionContent("핵심", listOf("요약"), null, listOf(EditionItem("t", "s", "u", "politics")), listOf("s"))))
+        editions.save(Edition(null, "politics", Language.KO, date, EditionContent("핵심", listOf("요약"), listOf(CrossInsight("주요 소식", "본문", listOf(EditionItem("t", "s", "u", "politics")))), listOf("s"))))
         val svc = EditionGenerationService(targets, editions, rawArticles,summarizer, noEvents)
         val summary = svc.runForDate(date)
         assertEquals(0, summary.generated)
@@ -101,7 +102,7 @@ class EditionPipelineServiceTest {
         val editions = FakeEditions()
         editions.save(
             Edition(null, "politics", Language.KO, date.minusDays(1),
-                EditionContent("어제 핵심", listOf("어제 요약"), null, listOf(EditionItem("t", "s", "u", "politics")), listOf("s"))),
+                EditionContent("어제 핵심", listOf("어제 요약"), listOf(CrossInsight("주요 소식", "본문", listOf(EditionItem("t", "s", "u", "politics")))), listOf("s"))),
         )
         val svc = EditionGenerationService(targets, editions, rawArticles,failingSummarizer, noEvents)
         val summary = svc.runForDate(date)

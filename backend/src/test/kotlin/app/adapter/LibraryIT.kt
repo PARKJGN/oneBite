@@ -6,6 +6,7 @@ import app.application.port.`in`.LibraryEditionView
 import app.application.port.`in`.LibrarySlotView
 import app.domain.model.Edition
 import app.domain.model.EditionContent
+import app.domain.model.CrossInsight
 import app.domain.model.EditionItem
 import app.domain.model.Language
 import app.application.port.out.EditionRepository
@@ -31,7 +32,7 @@ class LibraryIT : IntegrationTest() {
     private fun saveEdition(combo: String, date: LocalDate, oneLine: String) = editions.save(
         Edition(
             id = null, comboKey = combo, language = Language.KO, issueDate = date,
-            content = EditionContent(oneLine, listOf("요약"), null, listOf(EditionItem("t", "s", "u", "politics")), listOf("s")),
+            content = EditionContent(oneLine, listOf("요약"), listOf(CrossInsight("주요 소식", "본문", listOf(EditionItem("t", "s", "u", "politics")))), listOf("s")),
         ),
     )
 

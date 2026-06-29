@@ -5,6 +5,7 @@ import app.adapter.`in`.web.SlotController
 import app.application.port.`in`.TodayView
 import app.domain.model.Edition
 import app.domain.model.EditionContent
+import app.domain.model.CrossInsight
 import app.domain.model.EditionItem
 import app.domain.model.Language
 import app.application.port.out.EditionRepository
@@ -52,8 +53,9 @@ class TodayTimezoneIT : IntegrationTest() {
                 id = null, comboKey = ComboKey.of(listOf("politics", "economy")),
                 language = Language.KO, issueDate = kstToday,
                 content = EditionContent(
-                    "핵심", listOf("요약"), null,
-                    listOf(EditionItem("t", "한국은행", "https://x", "economy")), listOf("한국은행"),
+                    "핵심", listOf("요약"),
+                    listOf(CrossInsight("주요 소식", "본문", listOf(EditionItem("t", "한국은행", "https://x", "economy")))),
+                    listOf("한국은행"),
                 ),
             ),
         )

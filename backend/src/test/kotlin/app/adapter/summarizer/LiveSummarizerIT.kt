@@ -54,7 +54,7 @@ class LiveSummarizerIT {
 
         assertDoesNotThrow { content.validate() }
         val inputUrls = input.articles.map { it.url }.toSet()
-        check(content.items.isNotEmpty()) { "items 가 비어 있음" }
-        content.items.forEach { check(it.url in inputUrls) { "지어낸 URL 발견: ${it.url}" } }
+        check(content.allItems().isNotEmpty()) { "items 가 비어 있음" }
+        content.allItems().forEach { check(it.url in inputUrls) { "지어낸 URL 발견: ${it.url}" } }
     }
 }
