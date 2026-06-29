@@ -9,7 +9,8 @@ import java.time.LocalDate
 
 /** RSS 수집(FR-003a) — 어댑터가 카테고리별 피드를 읽는다. */
 fun interface FeedPort {
-    fun fetchSince(categoryCode: String, sinceUtc: Instant): List<RawArticle>
+    /** [sinceUtc, untilUtc] 창 안에 발행된 기사만 수집(8시 다이제스트 = 직전 24h, 컷오프 07:30). */
+    fun fetch(categoryCode: String, sinceUtc: Instant, untilUtc: Instant): List<RawArticle>
 }
 
 /** 카테고리별 RSS 소스 목록(데이터 관리, FR-002b/003a). */

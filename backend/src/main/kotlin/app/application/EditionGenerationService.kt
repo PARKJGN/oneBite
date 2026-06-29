@@ -45,7 +45,12 @@ class EditionGenerationService(
         var generated = 0
         var reused = 0
         var fallback = 0
-        val since = issueDate.minusDays(1).atStartOfDay(java.time.ZoneOffset.UTC).toInstant() // 롤링 ~24h(FR-004a)
+        // 뉴스 창: [어제 07:30 KST, 오늘 07:30 KST] — 8시 발송 다이제스트가 '직전 24h'를 다룬다.
+        // 컷오프=07:30(content-ready-deadline). 에디션은 조합별 공유라 기준 TZ(한국 뉴스=KST)에 고정.
+        val newsZone = java.time.ZoneId.of("Asia/Seoul")
+        val cutoff = java.time.LocalTime.of(7, 30)
+        val until = issueDate.atTime(cutoff).atZone(newsZone).toInstant()
+        val since = issueDate.minusDays(1).atTime(cutoff).atZone(newsZone).toInstant()
 
         for ((comboKey, language) in needed) {
             try {
@@ -53,7 +58,7 @@ class EditionGenerationService(
                     reused++; events.emit("cache_hit", mapOf("combo" to comboKey, "lang" to language.name)); continue
                 }
                 val categoryCodes = comboKey.split("+").filter { it.isNotBlank() }
-                val articles = categoryCodes.flatMap { feed.fetchSince(it, since) }
+                val articles = categoryCodes.flatMap { feed.fetch(it, since, until) }
                 val top = Ranking.topClusters(Dedup.clusterByEvent(articles))
 
                 // 1) AI 요약 시도(+품질검증). 실패(호출 오류·품질 미달) 시 null → 폴백 사다리로.

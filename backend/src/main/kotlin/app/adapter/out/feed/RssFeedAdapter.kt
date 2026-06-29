@@ -22,11 +22,11 @@ class RssFeedAdapter(
 ) : FeedPort {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun fetchSince(categoryCode: String, sinceUtc: Instant): List<RawArticle> =
+    override fun fetch(categoryCode: String, sinceUtc: Instant, untilUtc: Instant): List<RawArticle> =
         sources.findByCategory(categoryCode).flatMap { source ->
             val body = fetcher.fetch(source.url)
             if (body == null) { log.warn("RSS fetch 실패: {}", source.url); return@flatMap emptyList() }
-            parse(body, categoryCode, source.language, sinceUtc, source.url)
+            parse(body, categoryCode, source.language, sinceUtc, untilUtc, source.url)
         }
 
     private fun parse(
@@ -34,6 +34,7 @@ class RssFeedAdapter(
         categoryCode: String,
         language: app.domain.model.Language,
         sinceUtc: Instant,
+        untilUtc: Instant,
         sourceUrl: String,
     ): List<RawArticle> = try {
         val feed = SyndFeedInput().build(XmlReader(ByteArrayInputStream(body.toByteArray(Charsets.UTF_8))))
@@ -45,7 +46,8 @@ class RssFeedAdapter(
             when {
                 title.isBlank() || link.isBlank() -> { null }      // 제목/링크 없음 → 제외
                 published == null -> null                          // 발행일 없음 → 제외
-                published.isBefore(sinceUtc) -> null               // 오래된 항목 → 제외(롤링 윈도)
+                published.isBefore(sinceUtc) -> null               // 창 이전(오래됨) → 제외
+                published.isAfter(untilUtc) -> null                // 창 이후(컷오프 후) → 제외
                 else -> RawArticle(title, link, sourceName, language, categoryCode, published)
             }
         }

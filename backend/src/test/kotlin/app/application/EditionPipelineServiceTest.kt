@@ -45,7 +45,7 @@ class EditionPipelineServiceTest {
     private val targets = DeliveryTargetQuery {
         listOf(DeliveryTarget(userId = 1L, language = Language.KO, comboKeys = listOf("politics")))
     }
-    private val feed = FeedPort { _, _ ->
+    private val feed = FeedPort { _, _, _ ->
         listOf(RawArticle("t", "https://u", "연합", Language.KO, "politics", Instant.now()))
     }
     private val summarizer = SummarizerPort { input: SummarizeInput ->
