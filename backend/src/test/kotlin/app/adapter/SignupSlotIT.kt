@@ -26,7 +26,7 @@ class SignupSlotIT : IntegrationTest() {
         mockMvc.perform(
             post("/slots").header("Authorization", bearer(userId))
                 .contentType(APPLICATION_JSON).content("""{"categoryCodes":["politics","economy"]}"""),
-        ).andExpect(status().isOk)
+        ).andExpect(status().isCreated)
 
         mockMvc.perform(get("/slots").header("Authorization", bearer(userId)))
             .andExpect(status().isOk)

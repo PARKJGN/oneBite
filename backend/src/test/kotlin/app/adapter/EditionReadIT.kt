@@ -26,7 +26,6 @@ class EditionReadIT : IntegrationTest() {
     @Autowired lateinit var slot: SlotController
     @Autowired lateinit var editionApi: EditionController
     @Autowired lateinit var editions: EditionRepository
-    @Autowired lateinit var jdbc: org.springframework.jdbc.core.JdbcTemplate
 
     @Test
     fun `오늘 발송분을 슬롯별로 보여주고 상세에서 3요소를 반환한다`() {

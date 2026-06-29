@@ -26,7 +26,6 @@ class LibraryIT : IntegrationTest() {
     @Autowired lateinit var library: LibraryController
     @Autowired lateinit var editionApi: EditionController
     @Autowired lateinit var editions: EditionRepository
-    @Autowired lateinit var jdbc: org.springframework.jdbc.core.JdbcTemplate
 
     private fun saveEdition(combo: String, date: LocalDate, oneLine: String) = editions.save(
         Edition(

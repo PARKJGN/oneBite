@@ -2,9 +2,11 @@ package app.adapter
 
 import app.adapter.out.security.JwtTokenIssuer
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.servlet.MockMvc
@@ -24,9 +26,26 @@ abstract class IntegrationTest {
     @Autowired protected lateinit var mockMvc: MockMvc
     @Autowired protected lateinit var objectMapper: ObjectMapper
     @Autowired protected lateinit var jwt: JwtTokenIssuer
+    @Autowired protected lateinit var jdbc: JdbcTemplate
 
     /** 보호 엔드포인트 호출용 Authorization 헤더 값(JWT). */
     protected fun bearer(userId: Long): String = "Bearer ${jwt.issue(userId)}"
+
+    /**
+     * 싱글톤 DB 를 전 IT 가 공유하므로 테스트마다 데이터를 비워 격리한다.
+     * 시드(categories·rss_sources)와 flyway 이력은 보존. RESTART IDENTITY 로 ID 도 초기화(예측 가능한 단언).
+     */
+    @BeforeEach
+    fun cleanDatabase() {
+        val tables = jdbc.queryForList(
+            "SELECT tablename FROM pg_tables WHERE schemaname = 'public' " +
+                "AND tablename NOT IN ('flyway_schema_history', 'categories', 'rss_sources')",
+            String::class.java,
+        )
+        if (tables.isNotEmpty()) {
+            jdbc.execute("TRUNCATE TABLE ${tables.joinToString(", ")} RESTART IDENTITY CASCADE")
+        }
+    }
 
     companion object {
         @JvmStatic
