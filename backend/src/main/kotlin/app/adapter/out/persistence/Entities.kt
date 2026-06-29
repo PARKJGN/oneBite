@@ -22,8 +22,7 @@ class UserEntity(
     var recoveryEmail: String? = null,
     var timezone: String = "Asia/Seoul",
     var outputLanguage: String = "ko",
-    var pushPermission: Str
-    ing = "unknown",
+    var pushPermission: String = "unknown",
     var provider: String? = null,        // google|naver|kakao
     var providerId: String? = null,
 )
