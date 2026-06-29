@@ -10,6 +10,8 @@ import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.testcontainers.containers.PostgreSQLContainer
 
 /**
@@ -30,6 +32,11 @@ abstract class IntegrationTest {
 
     /** 보호 엔드포인트 호출용 Authorization 헤더 값(JWT). */
     protected fun bearer(userId: Long): String = "Bearer ${jwt.issue(userId)}"
+
+    /** 보호된 GET 을 호출하고 UTF-8 응답 본문을 반환(역직렬화용, 200 기대). 한글이 깨지지 않도록 UTF-8 명시. */
+    protected fun getBody(path: String, userId: Long): String =
+        mockMvc.perform(get(path).header("Authorization", bearer(userId)))
+            .andExpect(status().isOk).andReturn().response.getContentAsString(Charsets.UTF_8)
 
     /**
      * 싱글톤 DB 를 전 IT 가 공유하므로 테스트마다 데이터를 비워 격리한다.

@@ -1,14 +1,15 @@
 package app.adapter
 
 import app.adapter.`in`.web.AuthController
-import app.adapter.`in`.web.EditionController
 import app.adapter.`in`.web.SlotController
+import app.application.port.`in`.TodayView
 import app.domain.model.Edition
 import app.domain.model.EditionContent
 import app.domain.model.EditionItem
 import app.domain.model.Language
 import app.application.port.out.EditionRepository
 import app.domain.service.ComboKey
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -22,7 +23,7 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 
 /**
- * 회귀(타임존, 원칙 XI): /today의 '오늘'은 사용자 타임존 기준이어야 한다.
+ * 회귀(타임존, 원칙 XI): /today의 '오늘'은 사용자 타임존 기준이어야 한다(HTTP).
  * 고정 Clock: UTC 2026-06-24T20:00 → Asia/Seoul 2026-06-25T05:00 (KST 날짜 06-25, UTC 날짜 06-24).
  * today()가 UTC를 쓰면 06-24로 조회 → 에디션(06-25) 못 찾아 실패. 사용자 TZ면 06-25로 찾아 성공.
  */
@@ -36,7 +37,6 @@ class TodayTimezoneIT : IntegrationTest() {
 
     @Autowired lateinit var auth: AuthController
     @Autowired lateinit var slot: SlotController
-    @Autowired lateinit var editionApi: EditionController
     @Autowired lateinit var editions: EditionRepository
 
     @Test
@@ -58,7 +58,7 @@ class TodayTimezoneIT : IntegrationTest() {
             ),
         )
 
-        val today = editionApi.today(user.userId)
+        val today = objectMapper.readValue<TodayView>(getBody("/today", user.userId))
         assertEquals(kstToday, today.issueDate)                       // UTC면 06-24가 되어 실패
         assertEquals(saved.id, today.slots.single().editionId)
         assertNull(today.banner)

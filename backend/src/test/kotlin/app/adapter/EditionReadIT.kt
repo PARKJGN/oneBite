@@ -1,14 +1,16 @@
 package app.adapter
 
 import app.adapter.`in`.web.AuthController
-import app.adapter.`in`.web.EditionController
 import app.adapter.`in`.web.SlotController
+import app.application.port.`in`.EditionDetailView
+import app.application.port.`in`.TodayView
 import app.domain.model.Edition
 import app.domain.model.EditionContent
 import app.domain.model.EditionItem
 import app.domain.model.Language
 import app.application.port.out.EditionRepository
 import app.domain.service.ComboKey
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -19,12 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import java.time.LocalDate
 import java.time.ZoneId
 
-/** US2 통합 테스트(T040): 실제 Postgres+Flyway에서 오늘 발송분 열람·읽음 기록. */
+/** US2 통합 테스트(T040, HTTP): /today 오늘 발송분 열람·/editions/{id} 상세·읽음 기록. */
 class EditionReadIT : IntegrationTest() {
 
     @Autowired lateinit var auth: AuthController
     @Autowired lateinit var slot: SlotController
-    @Autowired lateinit var editionApi: EditionController
     @Autowired lateinit var editions: EditionRepository
 
     @Test
@@ -49,20 +50,19 @@ class EditionReadIT : IntegrationTest() {
             ),
         )
 
-        val today1 = editionApi.today(user.userId)
+        val today1 = objectMapper.readValue<TodayView>(getBody("/today", user.userId))
         assertEquals(today, today1.issueDate)
         assertNull(today1.banner) // 오늘 발송분 존재 → 폴백 배너 없음
         assertEquals(saved.id, today1.slots.single().editionId)
+        assertFalse(today1.slots.single().read) // 읽기 전 read=false
 
-        // 읽기 전 today read=false
-        assertFalse(today1.slots.single().read)
-
-        val detail = editionApi.edition(user.userId, saved.id!!)
+        val detail = objectMapper.readValue<EditionDetailView>(getBody("/editions/${saved.id}", user.userId))
         assertNotNull(detail.crossInsight)
         assertEquals("금리 동결과 거래 회복이 맞물린 하루", detail.oneLine)
         assertEquals(1, detail.items.size)
 
         // 상세 열람 후 today read=true (FR-020 노출)
-        assertTrue(editionApi.today(user.userId).slots.single().read)
+        val today2 = objectMapper.readValue<TodayView>(getBody("/today", user.userId))
+        assertTrue(today2.slots.single().read)
     }
 }
