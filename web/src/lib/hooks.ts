@@ -116,7 +116,9 @@ export function useLibraryEditions(comboKey: string) {
 }
 
 // ── 에디션 상세 ──
-export interface EditionDetail { id: number; issueDate: string; oneLine: string; marketSummary: string[]; crossInsight: string | null; items: { title: string; source: string; url: string; categoryCode: string }[]; references: string[]; bookmarked: boolean }
+export interface EditionItem { title: string; source: string; url: string; categoryCode: string }
+export interface CrossInsight { headline: string; body: string; items: EditionItem[] }
+export interface EditionDetail { id: number; issueDate: string; oneLine: string; marketSummary: string[]; crossInsights: CrossInsight[]; references: string[]; bookmarked: boolean }
 export function useEdition(id: number) {
   return useQuery({ queryKey: ['edition', id], queryFn: async () => (await api.get(`/editions/${id}`)).data as EditionDetail });
 }

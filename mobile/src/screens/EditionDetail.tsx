@@ -39,23 +39,24 @@ export default function EditionDetail({ route, navigation }: any) {
             <Text key={i} style={{ fontSize: 16, lineHeight: 27, color: '#26352c', marginTop: 12 }}>{p}</Text>
           ))}
 
-          {e.crossInsight ? (
-            <View style={{ marginTop: 18, padding: 14, backgroundColor: colors.greenSoft, borderRadius: 12 }}>
-              <Text style={{ fontSize: 12, fontWeight: '700', color: colors.green }}>카테고리 연결</Text>
-              <Text style={{ fontSize: 15, lineHeight: 24, color: '#26352c', marginTop: 6 }}>{e.crossInsight}</Text>
-            </View>
-          ) : null}
+          <Text style={{ fontSize: 14, fontWeight: '700', letterSpacing: 1, color: '#7a8b80', marginTop: 26 }}>복합 정보</Text>
+          {e.crossInsights.map((ci, ci_i) => (
+            <View key={ci_i} style={{ marginTop: 16, padding: 16, backgroundColor: colors.greenSoft, borderRadius: 14 }}>
+              <Text style={{ fontSize: 17, fontWeight: '700', lineHeight: 25, color: colors.ink }}>{ci.headline}</Text>
+              <Text style={{ fontSize: 15, lineHeight: 24, color: '#26352c', marginTop: 8 }}>{ci.body}</Text>
 
-          <Text style={{ fontSize: 12, fontWeight: '700', letterSpacing: 1, color: '#7a8b80', marginTop: 24 }}>참고 뉴스</Text>
-          {e.items.map((it, i) => (
-            <TouchableOpacity key={i} onPress={() => openArticle(it.url)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#eef2ee' }}>
-              <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: 15, fontWeight: '500', color: colors.ink }}>{it.title}</Text>
-                <Text style={{ fontSize: 12, color: colors.inkFaint, marginTop: 4 }}>{it.source}</Text>
-              </View>
-              <Text style={{ fontSize: 18, color: '#c2cfc6' }}>›</Text>
-            </TouchableOpacity>
+              <Text style={{ fontSize: 11, fontWeight: '700', letterSpacing: 1, color: colors.green, marginTop: 14 }}>관련 뉴스</Text>
+              {ci.items.map((it, i) => (
+                <TouchableOpacity key={i} onPress={() => openArticle(it.url)}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 11, borderBottomWidth: i === ci.items.length - 1 ? 0 : 1, borderBottomColor: '#dde7de' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 15, fontWeight: '500', color: colors.ink }}>{it.title}</Text>
+                    <Text style={{ fontSize: 12, color: colors.inkFaint, marginTop: 4 }}>{it.source}</Text>
+                  </View>
+                  <Text style={{ fontSize: 18, color: '#b6c6ba' }}>›</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           ))}
         </>
       )}

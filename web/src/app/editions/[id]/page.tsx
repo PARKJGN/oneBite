@@ -46,22 +46,23 @@ export default function EditionDetailPage() {
               <p key={i} className="mt-3 leading-relaxed text-[#26352c]">{p}</p>
             ))}
 
-            {e.crossInsight && (
-              <div className="mt-6 rounded-md bg-cloud p-4">
-                <Badge variant="category">카테고리 연결</Badge>
-                <p className="mt-2 leading-relaxed text-[#26352c]">{e.crossInsight}</p>
-              </div>
-            )}
+            <p className="mt-8 text-xs font-bold tracking-widest text-ink-faint">복합 정보</p>
+            {e.crossInsights.map((ci, ci_i) => (
+              <section key={ci_i} className="mt-4 rounded-md bg-cloud p-5">
+                <h2 className="font-serif text-lg font-semibold leading-snug text-ink">{ci.headline}</h2>
+                <p className="mt-2 leading-relaxed text-[#26352c]">{ci.body}</p>
 
-            <p className="mt-8 text-xs font-bold tracking-widest text-ink-faint">참고 뉴스</p>
-            <ul className="mt-2 divide-y divide-border">
-              {e.items.map((it, i) => (
-                <li key={i} className="py-3">
-                  <a href={it.url} target="_blank" rel="noreferrer" className="font-medium text-ink hover:text-pine">{it.title}</a>
-                  <p className="mt-1 text-xs text-ink-faint">{it.source}</p>
-                </li>
-              ))}
-            </ul>
+                <Badge variant="category" className="mt-4">관련 뉴스</Badge>
+                <ul className="mt-2 divide-y divide-border">
+                  {ci.items.map((it, i) => (
+                    <li key={i} className="py-3">
+                      <a href={it.url} target="_blank" rel="noreferrer" className="font-medium text-ink hover:text-pine">{it.title}</a>
+                      <p className="mt-1 text-xs text-ink-faint">{it.source}</p>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
           </article>
         )}
       </main>

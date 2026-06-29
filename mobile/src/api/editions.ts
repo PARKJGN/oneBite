@@ -1,13 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from './client';
 
+export interface EditionItem { title: string; source: string; url: string; categoryCode: string }
+export interface CrossInsight { headline: string; body: string; items: EditionItem[] }
 export interface EditionDetail {
   id: number;
   issueDate: string;
   oneLine: string;
   marketSummary: string[];
-  crossInsight: string | null;
-  items: { title: string; source: string; url: string; categoryCode: string }[];
+  crossInsights: CrossInsight[];
   references: string[];
   bookmarked: boolean;
 }
