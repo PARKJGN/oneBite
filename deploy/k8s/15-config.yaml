@@ -6,8 +6,8 @@ metadata:
   namespace: onebite
 data:
   # ── DB 접속(클러스터 내부 주소) ──
-  POSTGRES_DB: "onebite"
-  POSTGRES_USER: "onebite"
+  # master(슈퍼유저)는 postgres 컨테이너 부팅용. 백엔드는 앱 전용 onebite 롤로 접속.
+  POSTGRES_MASTER_USER: "postgres"
   SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/onebite"
   SPRING_DATASOURCE_USERNAME: "onebite"
   SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"

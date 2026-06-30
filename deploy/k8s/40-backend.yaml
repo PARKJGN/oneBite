@@ -23,7 +23,8 @@ spec:
             - configMapRef: { name: onebite-config }   # SPRING_*, ONEBITE_*, SERVER_SERVLET_CONTEXT_PATH=/api
             - secretRef:    { name: onebite-secrets }   # JWT/소셜 secret 등
           env:
-            - { name: SPRING_DATASOURCE_PASSWORD, valueFrom: { secretKeyRef: { name: onebite-secrets, key: POSTGRES_PASSWORD } } }
+            # 앱 전용 onebite 롤 비밀번호(master 와 분리)
+            - { name: SPRING_DATASOURCE_PASSWORD, valueFrom: { secretKeyRef: { name: onebite-secrets, key: ONEBITE_DB_PASSWORD } } }
           ports:
             - containerPort: 8080
           readinessProbe:

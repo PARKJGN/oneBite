@@ -1,4 +1,5 @@
-# PostgreSQL — 단일 인스턴스 + PVC 영속. (백엔드 Flyway 가 스키마를 적용)
+# PostgreSQL 18 — 단일 인스턴스 + PVC 영속. (백엔드 Flyway 가 onebite 스키마 적용)
+# 계정 분리: 컨테이너 부팅 시 master(슈퍼유저) 생성 → init 스크립트가 앱 전용 onebite 롤/DB 생성.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -9,6 +10,22 @@ spec:
   resources:
     requests:
       storage: 5Gi
+---
+# 최초 기동(데이터 디렉터리 빈 상태)에서만 실행되는 초기화 스크립트 — 앱 전용 onebite 롤/DB 생성.
+# .sh 라야 환경변수(${ONEBITE_DB_PASSWORD}) 가 치환된다(.sql 은 치환 안 됨).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: onebite
+data:
+  01-onebite.sh: |
+    #!/bin/bash
+    set -e
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname postgres <<-EOSQL
+      CREATE ROLE onebite LOGIN PASSWORD '${ONEBITE_DB_PASSWORD}';
+      CREATE DATABASE onebite OWNER onebite;
+    EOSQL
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -27,32 +44,37 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:16
+          image: postgres:18
           env:
-            - { name: POSTGRES_DB,   valueFrom: { configMapKeyRef: { name: onebite-config, key: POSTGRES_DB } } }
-            - { name: POSTGRES_USER, valueFrom: { configMapKeyRef: { name: onebite-config, key: POSTGRES_USER } } }
-            - { name: POSTGRES_PASSWORD, valueFrom: { secretKeyRef: { name: onebite-secrets, key: POSTGRES_PASSWORD } } }
+            # ── master(슈퍼유저) 계정 — 운영/관리용 ──
+            - { name: POSTGRES_USER, valueFrom: { configMapKeyRef: { name: onebite-config, key: POSTGRES_MASTER_USER } } }
+            - { name: POSTGRES_PASSWORD, valueFrom: { secretKeyRef: { name: onebite-secrets, key: POSTGRES_MASTER_PASSWORD } } }
+            # ── 앱 전용 onebite 롤 비밀번호 — init 스크립트가 사용 ──
+            - { name: ONEBITE_DB_PASSWORD, valueFrom: { secretKeyRef: { name: onebite-secrets, key: ONEBITE_DB_PASSWORD } } }
             - { name: PGDATA, value: /var/lib/postgresql/data/pgdata }
           ports:
             - containerPort: 5432
           volumeMounts:
             - { name: data, mountPath: /var/lib/postgresql/data }
+            - { name: init, mountPath: /docker-entrypoint-initdb.d }
           readinessProbe:
-            exec: { command: ["pg_isready", "-U", "onebite"] }
+            exec: { command: ["pg_isready", "-U", "onebite", "-d", "onebite"] }
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            exec: { command: ["pg_isready", "-U", "onebite"] }
+            exec: { command: ["pg_isready", "-U", "onebite", "-d", "onebite"] }
             initialDelaySeconds: 20
             periodSeconds: 15
       volumes:
         - name: data
           persistentVolumeClaim: { claimName: postgres-data }
+        - name: init
+          configMap: { name: postgres-init }
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres            # 백엔드가 jdbc:postgresql://postgres:5432 로 접속
+  name: postgres            # 백엔드가 jdbc:postgresql://postgres:5432/onebite 로 접속(앱 onebite 롤)
   namespace: onebite
 spec:
   selector: { app: postgres }
