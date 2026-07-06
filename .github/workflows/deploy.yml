@@ -34,6 +34,7 @@ jobs:
       packages: write          # GHCR 푸시 권한
     steps:
       - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3      # arm64 크로스빌드 에뮬레이션(클러스터가 라즈베리파이 arm64)
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:
@@ -50,6 +51,7 @@ jobs:
         with:
           context: ./backend
           push: true
+          platforms: linux/amd64,linux/arm64   # arm64 = 배포 대상(라즈베리파이). amd64 = 로컬/기타
           tags: |
             ghcr.io/${{ env.OWNER_LC }}/onebite-backend:latest
             ghcr.io/${{ env.OWNER_LC }}/onebite-backend:${{ github.sha }}
@@ -61,6 +63,7 @@ jobs:
         with:
           context: ./web
           push: true
+          platforms: linux/amd64,linux/arm64   # arm64 = 배포 대상(라즈베리파이)
           tags: |
             ghcr.io/${{ env.OWNER_LC }}/onebite-web:latest
             ghcr.io/${{ env.OWNER_LC }}/onebite-web:${{ github.sha }}
