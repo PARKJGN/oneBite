@@ -1,6 +1,7 @@
 package app.application
 
 import app.domain.InvalidCredentialsException
+import app.domain.NicknameAlreadyExistsException
 import app.domain.UsernameAlreadyExistsException
 import app.domain.model.User
 import app.application.port.`in`.AuthUseCase
@@ -34,12 +35,17 @@ class AuthService(
     override fun isUsernameAvailable(username: String): Boolean =
         username.length in USERNAME_LENGTH && !users.existsByUsername(username)
 
+    @Transactional(readOnly = true)
+    override fun isNicknameAvailable(nickname: String): Boolean =
+        nickname.isNotBlank() && !users.existsByNickname(nickname)
+
     @Transactional
     override fun signup(cmd: SignupCommand): SignupResult {
         require(cmd.username.length in USERNAME_LENGTH) { "아이디는 ${USERNAME_LENGTH.first}~${USERNAME_LENGTH.last}자여야 합니다" }
         require(cmd.password.length >= 8) { "비밀번호는 8자 이상이어야 합니다" }
         require(cmd.nickname.isNotBlank()) { "닉네임은 비어 있을 수 없습니다" }
         if (users.existsByUsername(cmd.username)) throw UsernameAlreadyExistsException(cmd.username)
+        if (users.existsByNickname(cmd.nickname)) throw NicknameAlreadyExistsException(cmd.nickname)
 
         val saved = users.save(
             User(

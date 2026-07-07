@@ -4,6 +4,7 @@ package app.application.port.`in`
 
 interface AuthUseCase {
     fun isUsernameAvailable(username: String): Boolean               // 아이디 중복/형식 확인(가입 전)
+    fun isNicknameAvailable(nickname: String): Boolean               // 닉네임 중복 확인(가입 전)
     fun signup(cmd: SignupCommand): SignupResult
     fun login(cmd: LoginCommand): LoginResult
     fun refresh(refreshToken: String): TokenPair                      // refresh 토큰 회전 → 새 access/refresh

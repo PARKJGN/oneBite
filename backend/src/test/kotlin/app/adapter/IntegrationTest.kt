@@ -34,9 +34,11 @@ abstract class IntegrationTest {
     protected fun bearer(userId: Long): String = "Bearer ${jwt.issue(userId)}"
 
     /** 보호된 GET 을 호출하고 UTF-8 응답 본문을 반환(역직렬화용, 200 기대). 한글이 깨지지 않도록 UTF-8 명시. */
-    protected fun getBody(path: String, userId: Long): String =
-        mockMvc.perform(get(path).header("Authorization", bearer(userId)))
+    protected fun getBody(path: String, userId: Long): String {
+        val full = mockMvc.perform(get(path).header("Authorization", bearer(userId)))
             .andExpect(status().isOk).andReturn().response.getContentAsString(Charsets.UTF_8)
+        return objectMapper.readTree(full).get("data").toString() // 표준 응답 봉투(ApiResponse) 언래핑
+    }
 
     /**
      * 싱글톤 DB 를 전 IT 가 공유하므로 테스트마다 데이터를 비워 격리한다.

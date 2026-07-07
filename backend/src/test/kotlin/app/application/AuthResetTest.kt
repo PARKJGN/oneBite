@@ -30,6 +30,7 @@ class AuthResetTest {
         }
         override fun findByUsername(username: String) = store.firstOrNull { it.username == username }
         override fun existsByUsername(username: String) = store.any { it.username == username }
+        override fun existsByNickname(nickname: String) = store.any { it.nickname == nickname }
         override fun findById(id: Long) = store.firstOrNull { it.id == id }
         override fun findByProvider(provider: String, providerId: String): User? = null
         override fun delete(userId: Long) { store.removeIf { it.id == userId } }

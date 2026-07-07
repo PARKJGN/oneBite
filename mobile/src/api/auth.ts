@@ -29,6 +29,14 @@ export function useCheckUsername() {
   });
 }
 
+// 닉네임 중복 확인 (미사용이면 available)
+export function useCheckNickname() {
+  return useMutation({
+    mutationFn: async (nickname: string): Promise<boolean> =>
+      (await api.get('/auth/check-nickname', { params: { nickname } })).data.available,
+  });
+}
+
 export function useLogin() {
   return useMutation({
     mutationFn: async (input: LoginInput): Promise<LoginResult> => {

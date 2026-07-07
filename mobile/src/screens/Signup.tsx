@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useCheckUsername, useSignup } from '../api/auth';
+import { useCheckNickname, useCheckUsername, useSignup } from '../api/auth';
 import { useSession } from '../store/session';
 import { colors, radius } from '../theme';
 
@@ -15,12 +15,15 @@ export default function Signup({ navigation }: any) {
   const [confirm, setConfirm] = useState('');
   const [recoveryEmail, setRecoveryEmail] = useState('');
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'available' | 'taken' | 'invalid'>('idle');
+  const [nicknameStatus, setNicknameStatus] = useState<'idle' | 'available' | 'taken' | 'invalid'>('idle');
 
   const signup = useSignup();
   const checkUsername = useCheckUsername();
+  const checkNickname = useCheckNickname();
   const setSession = useSession((s) => s.setSession);
 
   const usernameValid = username.length >= USERNAME_MIN && username.length <= USERNAME_MAX;
+  const nicknameValid = nickname.trim().length > 0;
   const passwordValid = password.length >= 8;
   const confirmMatch = confirm.length > 0 && confirm === password;
 
@@ -35,9 +38,22 @@ export default function Signup({ navigation }: any) {
     });
   };
 
+  const onCheckNickname = () => {
+    if (!nicknameValid) {
+      setNicknameStatus('invalid');
+      return;
+    }
+    checkNickname.mutate(nickname.trim(), {
+      onSuccess: (available) => setNicknameStatus(available ? 'available' : 'taken'),
+      onError: () => Alert.alert('확인 실패', '닉네임 확인 중 오류가 발생했어요.'),
+    });
+  };
+
   const onSubmit = () => {
+    if (!nicknameValid) { Alert.alert('확인', '닉네임을 입력해 주세요.'); return; }
+    if (nicknameStatus !== 'available') { Alert.alert('확인', '닉네임 중복확인을 해주세요.'); return; }
     if (!usernameValid) { Alert.alert('확인', `아이디는 ${USERNAME_MIN}~${USERNAME_MAX}자여야 해요.`); return; }
-    if (usernameStatus === 'taken') { Alert.alert('확인', '이미 사용 중인 아이디예요.'); return; }
+    if (usernameStatus !== 'available') { Alert.alert('확인', '아이디 중복확인을 해주세요.'); return; }
     if (!passwordValid) { Alert.alert('확인', '비밀번호는 8자 이상이어야 해요.'); return; }
     if (!confirmMatch) { Alert.alert('확인', '비밀번호가 일치하지 않아요.'); return; }
     signup.mutate(
@@ -48,8 +64,12 @@ export default function Signup({ navigation }: any) {
           navigation.replace('Onboard');
         },
         onError: (e: any) => {
-          if (e?.response?.status === 409) setUsernameStatus('taken');
-          Alert.alert('가입 실패', e?.response?.data?.message ?? e?.message ?? '입력값을 확인해 주세요.');
+          // 에러 응답은 봉투({ code, message, ... }) 그대로 담겨 옴(에러 경로는 언래핑 안 함).
+          const code = e?.response?.data?.code;
+          const message = e?.response?.data?.message;
+          if (code === 'NICKNAME_ALREADY_EXISTS') setNicknameStatus('taken');
+          else if (code === 'USERNAME_ALREADY_EXISTS' || e?.response?.status === 409) setUsernameStatus('taken');
+          Alert.alert('가입 실패', message ?? e?.message ?? '입력값을 확인해 주세요.');
         },
       },
     );
@@ -64,9 +84,25 @@ export default function Signup({ navigation }: any) {
       <Text style={{ fontSize: 15, color: colors.inkSoft, marginTop: 9 }}>이메일·휴대폰 인증 없이 바로 시작하세요.</Text>
 
       <View style={{ marginTop: 28, gap: 16 }}>
-        {/* 닉네임 */}
+        {/* 닉네임 + 중복확인 */}
         <View>
-          <TextInput placeholder="닉네임" value={nickname} onChangeText={setNickname} style={inputBase} />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TextInput
+              placeholder="닉네임"
+              value={nickname}
+              onChangeText={(t) => { setNickname(t); setNicknameStatus('idle'); }}
+              style={[inputBase, { flex: 1, borderColor: borderFor(nicknameStatus === 'available', nicknameStatus === 'taken' || nicknameStatus === 'invalid') }]}
+            />
+            <TouchableOpacity
+              onPress={onCheckNickname}
+              disabled={checkNickname.isPending || !nickname}
+              style={{ paddingHorizontal: 16, justifyContent: 'center', borderRadius: radius.md, backgroundColor: colors.greenSoft }}>
+              <Text style={{ color: colors.green, fontWeight: '600' }}>{checkNickname.isPending ? '확인 중…' : '중복확인'}</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={{ marginTop: 6, fontSize: 12.5, color: statusColor(nicknameStatus) }}>
+            {nicknameMsg(nicknameStatus)}
+          </Text>
         </View>
 
         {/* 아이디 + 중복확인 */}
@@ -147,6 +183,14 @@ function usernameMsg(s: 'idle' | 'available' | 'taken' | 'invalid'): string {
     case 'taken': return '이미 사용 중인 아이디예요';
     case 'invalid': return `아이디는 ${USERNAME_MIN}~${USERNAME_MAX}자여야 해요`;
     default: return `${USERNAME_MIN}~${USERNAME_MAX}자, 가입 전 중복확인을 눌러주세요`;
+  }
+}
+function nicknameMsg(s: 'idle' | 'available' | 'taken' | 'invalid'): string {
+  switch (s) {
+    case 'available': return '✓ 사용 가능한 닉네임이에요';
+    case 'taken': return '이미 사용 중인 닉네임이에요';
+    case 'invalid': return '닉네임을 입력해 주세요';
+    default: return '가입 전 중복확인을 눌러주세요';
   }
 }
 function statusColor(s: 'idle' | 'available' | 'taken' | 'invalid'): string {

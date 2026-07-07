@@ -20,7 +20,7 @@ class SignupSlotIT : IntegrationTest() {
             post("/auth/signup").contentType(APPLICATION_JSON)
                 .content("""{"username":"alice","password":"password123","nickname":"앨리스"}"""),
         ).andExpect(status().isCreated).andReturn().response.contentAsString
-        val userId = objectMapper.readTree(res).get("userId").asLong()
+        val userId = objectMapper.readTree(res).get("data").get("userId").asLong() // 표준 응답 봉투 언래핑
         assertTrue(userId > 0)
 
         mockMvc.perform(
@@ -30,14 +30,14 @@ class SignupSlotIT : IntegrationTest() {
 
         mockMvc.perform(get("/slots").header("Authorization", bearer(userId)))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.length()").value(1))
-            .andExpect(jsonPath("$[0].categoryLine").value("정치 · 경제"))
+            .andExpect(jsonPath("$.data.length()").value(1))
+            .andExpect(jsonPath("$.data[0].categoryLine").value("정치 · 경제"))
     }
 
     @Test
     fun `카테고리 목록은 시드된 10개를 반환한다`() {
         mockMvc.perform(get("/categories"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.length()").value(10))
+            .andExpect(jsonPath("$.data.length()").value(10))
     }
 }

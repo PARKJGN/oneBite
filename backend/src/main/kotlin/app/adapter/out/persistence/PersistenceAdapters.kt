@@ -18,6 +18,7 @@ class UserPersistenceAdapter(private val jpa: UserJpaRepository) : UserRepositor
     override fun save(user: User): User = jpa.save(user.toEntity()).toDomain()
     override fun findByUsername(username: String): User? = jpa.findByUsername(username)?.toDomain()
     override fun existsByUsername(username: String): Boolean = jpa.existsByUsername(username)
+    override fun existsByNickname(nickname: String): Boolean = jpa.existsByNickname(nickname)
     override fun findById(id: Long): User? = jpa.findById(id).orElse(null)?.toDomain()
     override fun findByProvider(provider: String, providerId: String): User? =
         jpa.findByProviderAndProviderId(provider, providerId)?.toDomain()

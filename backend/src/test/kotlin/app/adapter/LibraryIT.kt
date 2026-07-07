@@ -38,8 +38,10 @@ class LibraryIT : IntegrationTest() {
 
     /** GET /library/editions?comboKey=... — comboKey 의 '+' 가 쿼리에서 공백으로 디코딩되지 않도록 .param 사용. */
     private fun libraryEditions(comboKey: String, userId: Long): List<LibraryEditionView> = objectMapper.readValue(
-        mockMvc.perform(get("/library/editions").param("comboKey", comboKey).header("Authorization", bearer(userId)))
-            .andExpect(status().isOk).andReturn().response.getContentAsString(Charsets.UTF_8),
+        objectMapper.readTree(
+            mockMvc.perform(get("/library/editions").param("comboKey", comboKey).header("Authorization", bearer(userId)))
+                .andExpect(status().isOk).andReturn().response.getContentAsString(Charsets.UTF_8),
+        ).get("data").toString(), // 표준 응답 봉투 언래핑
     )
 
     @Test

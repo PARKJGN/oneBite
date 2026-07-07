@@ -15,21 +15,36 @@ api.interceptors.request.use((config) => {
 // 동시 401이 몰려도 refresh는 한 번만(single-flight) 수행한다.
 let refreshing: Promise<string | null> | null = null;
 
+// 표준 봉투: { code, message, requestId, data } — 성공 시 실제 페이로드를 벗겨낸다.
+function unwrap<T = unknown>(body: unknown): T {
+  if (body && typeof body === 'object' && 'code' in body && 'data' in body) {
+    return (body as { data: T }).data;
+  }
+  return body as T;
+}
+
 async function refreshAccess(): Promise<string | null> {
   const { refreshToken } = useSession.getState();
   if (!refreshToken) return null;
   try {
     // 인터셉터 재귀를 피하려고 bare axios로 호출(Authorization 미부착).
-    const { data } = await axios.post(`${baseURL}/auth/refresh`, { refreshToken });
+    // bare axios엔 언래핑 인터셉터가 없으므로 여기서 직접 봉투를 벗긴다.
+    const res = await axios.post(`${baseURL}/auth/refresh`, { refreshToken });
+    const data = unwrap<{ token: string; refreshToken: string }>(res.data);
     useSession.getState().setTokens(data.token, data.refreshToken);
-    return data.token as string;
+    return data.token;
   } catch {
     return null;
   }
 }
 
+// 성공 응답 언래핑: 봉투면 data로 치환, 아니면(빈 응답 등) 그대로 통과.
+// 기존 훅들이 res.data로 실제 페이로드를 읽던 코드가 그대로 동작한다.
 api.interceptors.response.use(
-  (r) => r,
+  (res) => {
+    res.data = unwrap(res.data);
+    return res;
+  },
   async (error) => {
     const original = error.config;
     const status = error.response?.status;

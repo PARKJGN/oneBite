@@ -10,6 +10,7 @@ interface UserRepository {
     fun save(user: User): User
     fun findByUsername(username: String): User?
     fun existsByUsername(username: String): Boolean
+    fun existsByNickname(nickname: String): Boolean
     fun findById(id: Long): User?
     fun findByProvider(provider: String, providerId: String): User?
     fun delete(userId: Long) // 탈퇴: 사용자 행 삭제(슬롯·읽음/책갈피·발송기록은 FK cascade, 공유 Edition은 보존)

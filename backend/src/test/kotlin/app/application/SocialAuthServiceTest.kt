@@ -23,6 +23,7 @@ class SocialAuthServiceTest {
         }
         override fun findByUsername(username: String) = store.firstOrNull { it.username == username }
         override fun existsByUsername(username: String) = store.any { it.username == username }
+        override fun existsByNickname(nickname: String) = store.any { it.nickname == nickname }
         override fun findById(id: Long) = store.firstOrNull { it.id == id }
         override fun findByProvider(provider: String, providerId: String) =
             store.firstOrNull { it.provider == provider && it.providerId == providerId }

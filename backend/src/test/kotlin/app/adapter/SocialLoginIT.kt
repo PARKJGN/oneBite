@@ -15,7 +15,7 @@ class SocialLoginIT : IntegrationTest() {
         mockMvc.perform(post("/auth/social").contentType(APPLICATION_JSON)
             .content("""{"provider":"kakao","accessToken":"$accessToken"}"""))
             .andExpect(status().isOk).andReturn().response.getContentAsString(Charsets.UTF_8),
-    )
+    ).get("data") // 표준 응답 봉투 언래핑
 
     @Test
     fun `소셜 로그인은 최초 가입 후 재로그인 시 같은 계정을 재사용한다`() {

@@ -4,6 +4,9 @@ package app.domain
 class UsernameAlreadyExistsException(username: String) :
     RuntimeException("이미 사용 중인 아이디입니다: $username")
 
+class NicknameAlreadyExistsException(nickname: String) :
+    RuntimeException("이미 사용 중인 닉네임입니다: $nickname")
+
 class InvalidCredentialsException : RuntimeException("아이디 또는 비밀번호가 올바르지 않습니다")
 
 /** 연속 로그인 실패 임계 초과로 계정이 일시 잠김(무차별 대입 방어). HTTP 429. */

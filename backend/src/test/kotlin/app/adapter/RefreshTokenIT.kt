@@ -15,7 +15,8 @@ class RefreshTokenIT : IntegrationTest() {
 
     @Autowired lateinit var auth: AuthController // arrange(가입)는 직접
 
-    private fun refreshTokenFrom(body: String): String = objectMapper.readTree(body).get("refreshToken").asText()
+    private fun refreshTokenFrom(body: String): String =
+        objectMapper.readTree(body).get("data").get("refreshToken").asText() // 표준 응답 봉투 언래핑
 
     private fun refresh(token: String) = mockMvc.perform(
         post("/auth/refresh").contentType(APPLICATION_JSON).content("""{"refreshToken":"$token"}"""),

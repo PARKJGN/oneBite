@@ -34,9 +34,13 @@ class AuthController(
     data class TokenResponse(val token: String, val refreshToken: String)
 
     data class CheckUsernameResponse(val available: Boolean)
+    data class CheckNicknameResponse(val available: Boolean)
 
     @GetMapping("/check-username")
     fun checkUsername(@RequestParam username: String) = CheckUsernameResponse(auth.isUsernameAvailable(username))
+
+    @GetMapping("/check-nickname")
+    fun checkNickname(@RequestParam nickname: String) = CheckNicknameResponse(auth.isNicknameAvailable(nickname))
 
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)

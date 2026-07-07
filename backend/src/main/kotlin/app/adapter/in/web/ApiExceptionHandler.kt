@@ -1,40 +1,43 @@
 package app.adapter.`in`.web
 
 import app.domain.InvalidCredentialsException
+import app.domain.NicknameAlreadyExistsException
 import app.domain.TooManyLoginAttemptsException
 import app.domain.UnknownCategoryException
 import app.domain.UserNotFoundException
 import app.domain.UsernameAlreadyExistsException
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
-/** 도메인 예외 → HTTP 매핑. 사용자 대면 메시지는 간결하게(상세는 서버 로깅). */
+/**
+ * 도메인 예외 → 표준 에러 응답(ApiResponse) 매핑. code(ErrorCode) + 사용자 메시지 + requestId.
+ * 사용자 대면 메시지는 간결하게(상세는 서버 로깅·requestId 로 추적).
+ */
 @RestControllerAdvice
 class ApiExceptionHandler {
 
-    data class ErrorResponse(val message: String)
+    private fun of(code: ErrorCode, message: String?) =
+        ResponseEntity.status(code.status).body(ApiResponse.error(code, message ?: code.defaultMessage))
 
     @ExceptionHandler(UsernameAlreadyExistsException::class)
-    fun onDuplicate(e: UsernameAlreadyExistsException) =
-        ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorResponse(e.message ?: "conflict"))
+    fun onDuplicateUsername(e: UsernameAlreadyExistsException) = of(ErrorCode.USERNAME_ALREADY_EXISTS, e.message)
+
+    @ExceptionHandler(NicknameAlreadyExistsException::class)
+    fun onDuplicateNickname(e: NicknameAlreadyExistsException) = of(ErrorCode.NICKNAME_ALREADY_EXISTS, e.message)
 
     @ExceptionHandler(InvalidCredentialsException::class)
-    fun onInvalidCreds(e: InvalidCredentialsException) =
-        ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse(e.message ?: "unauthorized"))
+    fun onInvalidCreds(e: InvalidCredentialsException) = of(ErrorCode.INVALID_CREDENTIALS, e.message)
 
     @ExceptionHandler(UserNotFoundException::class)
-    fun onNotFound(e: UserNotFoundException) =
-        ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse(e.message ?: "not found"))
+    fun onNotFound(e: UserNotFoundException) = of(ErrorCode.USER_NOT_FOUND, e.message)
 
     @ExceptionHandler(TooManyLoginAttemptsException::class)
     fun onTooManyAttempts(e: TooManyLoginAttemptsException) =
-        ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+        ResponseEntity.status(ErrorCode.TOO_MANY_ATTEMPTS.status)
             .header("Retry-After", e.retryAfterSeconds.toString())
-            .body(ErrorResponse(e.message ?: "too many requests"))
+            .body(ApiResponse.error(ErrorCode.TOO_MANY_ATTEMPTS, e.message ?: ErrorCode.TOO_MANY_ATTEMPTS.defaultMessage))
 
     @ExceptionHandler(UnknownCategoryException::class, IllegalArgumentException::class)
-    fun onBadRequest(e: RuntimeException) =
-        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponse(e.message ?: "bad request"))
+    fun onBadRequest(e: RuntimeException) = of(ErrorCode.BAD_REQUEST, e.message)
 }

@@ -39,23 +39,23 @@ class BookmarkIT : IntegrationTest() {
 
         // 초기: 책갈피 없음, 상세 false
         mockMvc.perform(get("/bookmarks").header("Authorization", token))
-            .andExpect(status().isOk).andExpect(jsonPath("$.length()").value(0))
+            .andExpect(status().isOk).andExpect(jsonPath("$.data.length()").value(0))
         mockMvc.perform(get("/editions/$id").header("Authorization", token))
-            .andExpect(status().isOk).andExpect(jsonPath("$.bookmarked").value(false))
+            .andExpect(status().isOk).andExpect(jsonPath("$.data.bookmarked").value(false))
 
         // 설정(PUT) → 목록 1개 + 상세 true
         mockMvc.perform(put("/editions/$id/bookmark").header("Authorization", token)).andExpect(status().isNoContent)
         mockMvc.perform(get("/bookmarks").header("Authorization", token))
-            .andExpect(jsonPath("$.length()").value(1))
-            .andExpect(jsonPath("$[0].editionId").value(id.toInt()))
+            .andExpect(jsonPath("$.data.length()").value(1))
+            .andExpect(jsonPath("$.data[0].editionId").value(id.toInt()))
         mockMvc.perform(get("/editions/$id").header("Authorization", token))
-            .andExpect(jsonPath("$.bookmarked").value(true))
+            .andExpect(jsonPath("$.data.bookmarked").value(true))
 
         // 해제(DELETE) → 목록 비고 + 상세 false
         mockMvc.perform(delete("/editions/$id/bookmark").header("Authorization", token)).andExpect(status().isNoContent)
         mockMvc.perform(get("/bookmarks").header("Authorization", token))
-            .andExpect(jsonPath("$.length()").value(0))
+            .andExpect(jsonPath("$.data.length()").value(0))
         mockMvc.perform(get("/editions/$id").header("Authorization", token))
-            .andExpect(jsonPath("$.bookmarked").value(false))
+            .andExpect(jsonPath("$.data.bookmarked").value(false))
     }
 }

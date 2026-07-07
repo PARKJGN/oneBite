@@ -24,6 +24,7 @@ class HomeServiceTest {
         override fun save(user: User) = user
         override fun findByUsername(username: String): User? = null
         override fun existsByUsername(username: String) = false
+        override fun existsByNickname(nickname: String) = false
         override fun findById(id: Long) = User(id, "u", "h", "닉", outputLanguage = Language.KO)
         override fun findByProvider(provider: String, providerId: String): User? = null
         override fun delete(userId: Long) {}

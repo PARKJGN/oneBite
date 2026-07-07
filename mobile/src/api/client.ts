@@ -27,16 +27,26 @@ async function refreshAccess(): Promise<string | null> {
   if (!refreshToken) return null;
   try {
     // 인터셉터 재귀를 피하려고 bare axios로 호출(Authorization 미부착).
+    // bare axios라 봉투 언래핑 인터셉터를 타지 않으므로, 봉투(data.data)에서 직접 토큰을 꺼낸다.
     const { data } = await axios.post(`${baseURL}/auth/refresh`, { refreshToken });
-    useSession.getState().setTokens(data.token, data.refreshToken);
-    return data.token as string;
+    const payload = data?.data ?? data;
+    useSession.getState().setTokens(payload.token, payload.refreshToken);
+    return payload.token as string;
   } catch {
     return null;
   }
 }
 
 api.interceptors.response.use(
-  (r) => r,
+  (r) => {
+    // 표준 봉투({ code, message, requestId, data }) 이면 페이로드로 언래핑 →
+    // 기존 코드가 res.data 로 실제 페이로드를 읽던 동작을 유지한다.
+    const body = r.data;
+    if (body && typeof body === 'object' && 'code' in body && 'data' in body) {
+      r.data = body.data;
+    }
+    return r;
+  },
   async (error) => {
     const original = error.config;
     const status = error.response?.status;

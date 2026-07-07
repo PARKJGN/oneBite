@@ -10,6 +10,7 @@ import java.time.LocalDate
 interface UserJpaRepository : JpaRepository<UserEntity, Long> {
     fun findByUsername(username: String): UserEntity?
     fun existsByUsername(username: String): Boolean
+    fun existsByNickname(nickname: String): Boolean
     fun findByPushPermission(pushPermission: String): List<UserEntity>
     fun findByProviderAndProviderId(provider: String, providerId: String): UserEntity?
 }

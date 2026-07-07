@@ -76,6 +76,20 @@ export function useSignup() {
       (await api.post('/auth/signup', i)).data as { token: string; refreshToken: string; userId: number; nickname: string },
   });
 }
+// 아이디 중복/형식 확인 — 봉투 언래핑 후 res.data.available 로 읽힌다.
+export function useCheckUsername() {
+  return useMutation({
+    mutationFn: async (username: string): Promise<boolean> =>
+      (await api.get('/auth/check-username', { params: { username } })).data.available as boolean,
+  });
+}
+// 닉네임 중복 확인
+export function useCheckNickname() {
+  return useMutation({
+    mutationFn: async (nickname: string): Promise<boolean> =>
+      (await api.get('/auth/check-nickname', { params: { nickname } })).data.available as boolean,
+  });
+}
 export function usePasswordResetRequest() {
   return useMutation({
     mutationFn: async (username: string) => { await api.post('/auth/password-reset/request', { username }); },
