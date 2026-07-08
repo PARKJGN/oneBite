@@ -1,7 +1,6 @@
 'use client';
 import Link from 'next/link';
 import { useLibrarySlots } from '@/lib/hooks';
-import { AppNav } from '@/components/AppNav';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -10,7 +9,6 @@ export default function HistoryPage() {
 
   return (
     <>
-      <AppNav />
       <main className="container max-w-2xl py-10">
         <h1 className="text-3xl font-bold text-ink">히스토리</h1>
         <p className="mt-1.5 text-sm text-ink-soft">슬롯별로 받은 에디션을 모았어요.</p>

@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useLibraryEditions, type LibraryEdition } from '@/lib/hooks';
 import { useEat } from '@/lib/useEat';
-import { AppNav } from '@/components/AppNav';
 import { EditionThumb } from '@/components/EditionThumb';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,7 +34,6 @@ export default function SlotEditionsPage() {
 
   return (
     <>
-      <AppNav />
       <main className="container max-w-3xl py-10">
         <Link href="/history" className="text-sm text-pine">← 히스토리</Link>
         <h1 className="mt-3 text-2xl font-bold text-ink">{comboKey.split('+').join(' · ')}</h1>

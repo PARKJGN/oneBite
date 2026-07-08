@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSlots, useDeleteSlot } from '@/lib/hooks';
-import { AppNav } from '@/components/AppNav';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -18,7 +17,6 @@ export default function SlotsPage() {
 
   return (
     <>
-      <AppNav />
       <main className="container max-w-2xl py-10">
         <h1 className="text-2xl font-bold text-ink">내 슬롯</h1>
         <p className="mt-2 text-sm text-ink-soft">변경한 내용은 다음 오전 8시 발송부터 반영돼요.</p>

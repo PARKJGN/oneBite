@@ -1,7 +1,6 @@
 'use client';
 import Link from 'next/link';
 import { useBookmarks } from '@/lib/hooks';
-import { AppNav } from '@/components/AppNav';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -10,7 +9,6 @@ export default function BookmarksPage() {
 
   return (
     <>
-      <AppNav />
       <main className="container max-w-2xl py-10">
         <h1 className="text-3xl font-bold text-ink">책갈피</h1>
         <p className="mt-1.5 text-sm text-ink-soft">책갈피한 에디션은 영구 보관돼요.</p>

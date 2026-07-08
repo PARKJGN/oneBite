@@ -2,7 +2,6 @@
 import { useRouter } from 'next/navigation';
 import { useMe, useUpdateLanguage, useDeleteAccount } from '@/lib/hooks';
 import { useSession } from '@/store/session';
-import { AppNav } from '@/components/AppNav';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -40,7 +39,6 @@ export default function SettingsPage() {
 
   return (
     <>
-      <AppNav />
       <main className="container max-w-2xl py-10">
         <h1 className="text-2xl font-bold text-ink">설정</h1>
 

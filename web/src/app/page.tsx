@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { useToday, useYesterday, useCategories, type TodaySlot } from '@/lib/hooks';
 import { useEat } from '@/lib/useEat';
-import { AppNav } from '@/components/AppNav';
 import { EditionThumb } from '@/components/EditionThumb';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +35,6 @@ export default function TodayPage() {
 
   return (
     <>
-      <AppNav />
       <main className="container max-w-2xl py-10">
         <p className="text-sm text-ink-faint">{today.data?.issueDate ?? ''}</p>
         <h1 className="mt-1 text-3xl font-bold text-ink">오늘의 한 입</h1>

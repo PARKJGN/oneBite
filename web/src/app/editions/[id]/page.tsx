@@ -2,7 +2,6 @@
 import { useParams, useRouter } from 'next/navigation';
 import { Bookmark } from 'lucide-react';
 import { useEdition, useSetBookmark } from '@/lib/hooks';
-import { AppNav } from '@/components/AppNav';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -15,7 +14,6 @@ export default function EditionDetailPage() {
 
   return (
     <>
-      <AppNav />
       <main className="container max-w-2xl py-10">
         <div className="flex items-center justify-between">
           <button onClick={() => router.back()} className="text-sm text-pine">← 뒤로</button>
