@@ -34,4 +34,16 @@ class DeliveryTargetEligibilityIT : IntegrationTest() {
         assertEquals(listOf(ComboKey.of(listOf("politics", "economy"))), target.comboKeys)
         assertTrue(target.comboKeys.isNotEmpty())
     }
+
+    @Test
+    fun `푸시 미동의여도 활성 슬롯이 있으면 생성(subscribed) 대상엔 포함, 발송(eligible) 대상엔 제외된다`() {
+        val user = auth.signup(AuthController.SignupRequest("noah", "password123", "노아"))
+        // pushPermission 은 기본 unknown (granted 로 바꾸지 않음)
+        slot.create(user.userId, SlotController.CreateSlotRequest(listOf("politics")))
+
+        // 생성 대상: 포함(구독 기준) — 인앱 열람 위해 에디션이 생성돼야 함
+        assertTrue(targets.findSubscribedTargets().any { it.userId == user.userId })
+        // 발송 대상: 제외(동의 게이트)
+        assertTrue(targets.findEligibleTargets().none { it.userId == user.userId })
+    }
 }

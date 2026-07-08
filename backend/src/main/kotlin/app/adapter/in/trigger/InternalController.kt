@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 
 /**
  * n8n 오케스트레이션이 호출하는 내부 트리거(인증: 내부 전용으로 후속 보강).
@@ -34,7 +35,8 @@ class InternalController(
     @PostMapping("/pipeline:run")
     fun pipeline(
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) date: LocalDate?,
-    ): GenerationSummary = generate.runForDate(date ?: LocalDate.now())
+        // 뉴스 기준 KST 로 오늘 날짜 산정 — 컨테이너 TZ=UTC 라 LocalDate.now() 는 하루 어긋남(창도 KST 07:30 기준).
+    ): GenerationSummary = generate.runForDate(date ?: LocalDate.now(ZoneId.of("Asia/Seoul")))
 
     /**
      * date 미지정(권장, n8n 주기 호출): 각 사용자 타임존 08:00 발송 윈도에 든 대상만 발송(멱등).

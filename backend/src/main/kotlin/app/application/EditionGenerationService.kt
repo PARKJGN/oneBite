@@ -38,8 +38,9 @@ class EditionGenerationService(
 ) : GenerateEditionsUseCase {
 
     override fun runForDate(issueDate: LocalDate): GenerationSummary {
-        // 구독된 (comboKey, language) 조합만 — 수요 기반(XIII)
-        val needed: Set<Pair<String, Language>> = targets.findEligibleTargets()
+        // 구독된 (comboKey, language) 조합만 — 수요 기반(XIII). 생성은 '구독(활성 슬롯)' 기준:
+        // 푸시 동의 여부와 무관하게 생성해야 인앱 열람이 가능(발송만 동의 게이트).
+        val needed: Set<Pair<String, Language>> = targets.findSubscribedTargets()
             .flatMap { t -> t.comboKeys.map { it to t.language } }
             .toSet()
 

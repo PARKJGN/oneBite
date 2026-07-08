@@ -114,11 +114,21 @@ class DeliveryTargetQueryAdapter(
     private val slots: SlotJpaRepository,
 ) : DeliveryTargetQuery {
     // 지연 컬렉션(categoryCodes)을 세션 안에서 읽도록 트랜잭션 경계 유지 (OSIV off, LazyInitialization 방지)
+    // 발송(푸시): 동의 게이트(권한 granted). — 원칙 I, FR-010
     @Transactional(readOnly = true)
     override fun findEligibleTargets(): List<DeliveryTarget> =
-        users.findByPushPermission("granted").mapNotNull { u ->
-            val userSlots = slots.findByUserIdAndDeletedAtIsNull(u.id!!) // 활성 슬롯만 발송
-            if (userSlots.isEmpty()) return@mapNotNull null // 동의 게이트(슬롯 0 제외)
+        toTargets(users.findByPushPermission("granted"))
+
+    // 생성: 구독(활성 슬롯) 기준 — 푸시 동의 무관(인앱 열람 위해). 원칙 IV.
+    @Transactional(readOnly = true)
+    override fun findSubscribedTargets(): List<DeliveryTarget> =
+        toTargets(users.findAll())
+
+    /** 주어진 후보 사용자 중 활성 슬롯이 있는 사람만 DeliveryTarget 으로 매핑. */
+    private fun toTargets(candidates: List<UserEntity>): List<DeliveryTarget> =
+        candidates.mapNotNull { u ->
+            val userSlots = slots.findByUserIdAndDeletedAtIsNull(u.id!!) // 활성 슬롯만
+            if (userSlots.isEmpty()) return@mapNotNull null // 슬롯 0 제외
             DeliveryTarget(
                 userId = u.id!!,
                 language = Language.valueOf(u.outputLanguage.uppercase()),

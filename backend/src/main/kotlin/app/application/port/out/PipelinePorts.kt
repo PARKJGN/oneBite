@@ -66,9 +66,13 @@ interface UserEditionStateRepository {
     fun findBookmarkedEditionIds(userId: Long): List<Long> // 최신 책갈피 순(영구 보존)
 }
 
-/** 발송 대상(동의 게이트 통과: 슬롯≥1 AND 권한 granted) 조회(원칙 I, FR-010). */
-fun interface DeliveryTargetQuery {
+/** 발송/생성 대상 조회. 발송은 동의 게이트(권한 granted), 생성은 구독(활성 슬롯) 기준. */
+interface DeliveryTargetQuery {
+    /** 발송(푸시) 대상 — 동의 게이트(슬롯≥1 AND 권한 granted). DispatchService 용(원칙 I, FR-010). */
     fun findEligibleTargets(): List<DeliveryTarget>
+
+    /** 생성 대상 — 활성 슬롯≥1 인 모든 구독자(푸시 동의 무관). 인앱 열람 위해 생성은 구독 기준(원칙 IV). */
+    fun findSubscribedTargets(): List<DeliveryTarget>
 }
 
 data class DeliveryTarget(

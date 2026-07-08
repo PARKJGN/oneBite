@@ -43,8 +43,10 @@ class EditionPipelineServiceTest {
         }
     }
 
-    private val targets = DeliveryTargetQuery {
-        listOf(DeliveryTarget(userId = 1L, language = Language.KO, comboKeys = listOf("politics")))
+    private val targets = object : DeliveryTargetQuery {
+        private val list = listOf(DeliveryTarget(userId = 1L, language = Language.KO, comboKeys = listOf("politics")))
+        override fun findEligibleTargets() = list   // 발송 테스트용(동의 게이트)
+        override fun findSubscribedTargets() = list  // 생성 테스트용(구독 기준) — 동일 대상
     }
     private val rawArticles = object : RawArticleStore {
         override fun saveNew(articles: List<RawArticle>) = 0
