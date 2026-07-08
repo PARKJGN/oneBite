@@ -8,6 +8,8 @@
 @layer base {
   body {
     @apply bg-canvas text-ink font-sans antialiased;
+    /* 하단 고정 탭바(BottomNav) 뒤로 콘텐츠가 가리지 않도록 여백 확보 */
+    padding-bottom: 6rem;
   }
   h1, h2, h3 {
     @apply font-serif;
