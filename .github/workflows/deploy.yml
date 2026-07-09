@@ -1,9 +1,12 @@
 name: deploy
 
-# main 푸시마다: 백엔드 테스트 → 백엔드·웹 이미지 빌드/푸시(GitHub Container Registry, GHCR)
+# main 푸시마다: 백엔드 테스트 + 웹 검증 → 백엔드·웹 이미지 빌드/푸시(GitHub Container Registry, GHCR)
+# main 대상 PR에서는 검증 잡만 돌고 이미지 푸시는 건너뛴다(머지 전 게이트).
 # 배포(쿠버네티스 적용)는 docs/deploy.md 참고 — 현재 수동 kubectl(자동화는 선택).
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch: {} # 수동 실행도 허용
 
@@ -24,10 +27,35 @@ jobs:
           chmod +x ./gradlew   # Windows에서 커밋된 래퍼 실행권한 보장
           ./gradlew test --no-daemon
 
-  # 2) 이미지 빌드 & GHCR 푸시(백엔드 + 웹)
+  # 2) 웹 검증 게이트 — 타입체크 + 프로덕션 빌드.
+  #    build-push 의 Docker 빌드가 웹을 검증해 주지만 PR에선 그 잡이 스킵되므로,
+  #    웹 변경이 무검증으로 머지되지 않도록 별도 잡으로 둔다.
+  check-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20" # web/Dockerfile 과 동일
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install deps
+        working-directory: web
+        run: npm ci
+      - name: Typecheck
+        working-directory: web
+        run: npx tsc --noEmit
+      - name: Build
+        working-directory: web
+        # NEXT_PUBLIC_* 미주입 시 코드의 기본값/폴백 경로로 빌드된다(빌드 검증이 목적).
+        run: npx next build
+
+  # 3) 이미지 빌드 & GHCR 푸시(백엔드 + 웹)
   #    GHCR 은 GitHub 내장 인증을 쓰므로 별도 레지스트리 시크릿이 필요 없다(GITHUB_TOKEN 사용).
+  #    PR에서는 실행하지 않는다 — 머지되지 않은 코드로 :latest 를 덮어쓰면 안 된다.
   build-push:
-    needs: test-backend
+    if: github.event_name != 'pull_request'
+    needs: [test-backend, check-web]
     runs-on: ubuntu-latest
     permissions:
       contents: read
