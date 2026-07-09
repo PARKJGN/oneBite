@@ -1,6 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useLogin, useSocialLogin } from '@/lib/hooks';
 import { useSession } from '@/store/session';
@@ -11,8 +11,16 @@ const googleConfigured = !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_REST_KEY;
 const naverId = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID;
 
-export default function LoginPage() {
+/** 오픈 리다이렉트 방지 — 같은 출처의 절대경로만 허용("//evil.com", "https://…" 차단). */
+function safeNext(raw: string | null): string {
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return '/';
+  return raw;
+}
+
+function LoginPageInner() {
   const router = useRouter();
+  // 가드가 붙여준 복귀 경로(/login?next=/settings). 없으면 홈.
+  const next = safeNext(useSearchParams().get('next'));
   const setSession = useSession((s) => s.setSession);
   const login = useLogin();
   const social = useSocialLogin();
@@ -21,14 +29,14 @@ export default function LoginPage() {
 
   const onLogin = () =>
     login.mutate({ username, password }, {
-      onSuccess: (r) => { setSession(r.userId, r.token, r.refreshToken); router.push('/'); },
+      onSuccess: (r) => { setSession(r.userId, r.token, r.refreshToken); router.replace(next); },
       onError: () => alert('아이디 또는 비밀번호를 확인해 주세요.'),
     });
 
   // 제공자 access 토큰으로 백엔드 검증 → 세션 저장 → 이동
   const loginWithToken = (provider: string, accessToken: string) =>
     social.mutate({ provider, accessToken }, {
-      onSuccess: (r) => { setSession(r.userId, r.token, r.refreshToken); router.push(r.isNew ? '/onboard' : '/'); },
+      onSuccess: (r) => { setSession(r.userId, r.token, r.refreshToken); router.replace(r.isNew ? '/onboard' : next); },
       onError: () => alert('소셜 로그인에 실패했어요.'),
     });
 
@@ -88,5 +96,14 @@ export default function LoginPage() {
         소셜 로그인 또는 아이디·비밀번호·닉네임으로 시작하세요.
       </p>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  // useSearchParams는 Suspense 경계 안에서만 정적 렌더가 가능하다.
+  return (
+    <Suspense fallback={null}>
+      <LoginPageInner />
+    </Suspense>
   );
 }

@@ -60,9 +60,11 @@ api.interceptors.response.use(
         return api(original);
       }
       // refresh 실패(만료/폐기) → 세션 정리 후 로그인으로 유도.
+      // 여기서 하드 이동하므로(AuthGuard의 replace보다 먼저 실행됨) 복귀 경로를 직접 붙인다.
       useSession.getState().clear();
       if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-        window.location.href = '/login';
+        const next = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
+        window.location.href = `/login?next=${next}`;
       }
     }
     return Promise.reject(error);
