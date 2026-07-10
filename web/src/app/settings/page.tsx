@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMe, useUpdateLanguage, useDeleteAccount } from '@/lib/hooks';
 import { useSession } from '@/store/session';
@@ -66,7 +67,8 @@ export default function SettingsPage() {
 
         <Section title="정보">
           <div className="p-4 text-ink-soft">버전 1.0.0</div>
-          <div className="p-4 text-ink-soft">이용약관 · 개인정보 처리방침</div>
+          <Link href="/terms" className="block p-4 font-semibold text-ink">이용약관</Link>
+          <Link href="/privacy" className="block p-4 font-semibold text-ink">개인정보처리방침</Link>
         </Section>
 
         <Section title="위험 구역">

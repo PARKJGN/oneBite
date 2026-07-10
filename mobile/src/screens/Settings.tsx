@@ -3,6 +3,7 @@ import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useMe, useDeleteAccount } from '../api/account';
 import { useSession } from '../store/session';
 import { openOsSettings } from '../lib/permission';
+import { openLegal, PRIVACY_URL, TERMS_URL } from '../lib/legal';
 import { colors, radius } from '../theme';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -55,7 +56,12 @@ export default function Settings({ navigation }: any) {
 
       <Section title="정보">
         <Row><Text style={{ color: colors.inkSoft }}>버전 1.0.0</Text></Row>
-        <View style={{ padding: 14 }}><Text style={{ color: colors.inkSoft }}>이용약관 · 개인정보 처리방침</Text></View>
+        <TouchableOpacity onPress={() => openLegal(TERMS_URL)} style={{ padding: 14, borderBottomWidth: 1, borderBottomColor: '#eef2ee' }}>
+          <Text style={{ color: colors.ink, fontWeight: '600' }}>이용약관</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => openLegal(PRIVACY_URL)} style={{ padding: 14 }}>
+          <Text style={{ color: colors.ink, fontWeight: '600' }}>개인정보처리방침</Text>
+        </TouchableOpacity>
       </Section>
 
       <Section title="위험 구역">
