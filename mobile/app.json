@@ -15,14 +15,14 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.onebite.app",
+      "bundleIdentifier": "com.jgbakland.onebite",
       "googleServicesFile": "./GoogleService-Info.plist",
       "config": {
         "usesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.onebite.app",
+      "package": "com.jgbakland.onebite",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
