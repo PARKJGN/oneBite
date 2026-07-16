@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from './providers';
 import { AppChrome } from '@/components/AppChrome';
+import { AuthGuard } from '@/components/AuthGuard';
 
 export const metadata: Metadata = {
   title: 'oneBite',
@@ -14,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Providers>
           <AppChrome />
-          {children}
+          <AuthGuard>{children}</AuthGuard>
         </Providers>
       </body>
     </html>
