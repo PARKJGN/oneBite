@@ -1,7 +1,7 @@
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useSession } from '@/store/session';
+import { useEffect } from 'react';
+import { useSession, useSessionHydrated } from '@/store/session';
 
 // 로그인 없이 접근 가능한 라우트.
 // /onboard 는 가입·소셜 로그인 직후(세션 보유) 에만 도달하므로 보호 대상에 둔다.
@@ -9,17 +9,6 @@ const PUBLIC = ['/login', '/signup', '/oauth', '/reset', '/privacy', '/terms', '
 
 const isPublicPath = (path: string) =>
   PUBLIC.some((p) => path === p || path.startsWith(p + '/'));
-
-// zustand persist 가 localStorage 를 복원(hydrate) 했는지 추적.
-// 복원 전엔 userId 가 항상 null 이라, 이 시점에 가드를 적용하면 로그인 사용자가 오튕긴다.
-function useHydrated() {
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => {
-    setHydrated(useSession.persist.hasHydrated());
-    return useSession.persist.onFinishHydration(() => setHydrated(true));
-  }, []);
-  return hydrated;
-}
 
 /**
  * 클라이언트 인증 가드. 세션이 없고 보호 라우트면 /login 으로 보낸다.
@@ -29,7 +18,7 @@ function useHydrated() {
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
-  const hydrated = useHydrated();
+  const hydrated = useSessionHydrated();
   const userId = useSession((s) => s.userId);
   const publicRoute = isPublicPath(path);
 
