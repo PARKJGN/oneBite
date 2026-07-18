@@ -45,14 +45,10 @@ class EditionReadService(
         val userSlots = slots.findActiveByUserId(userId)
         val resolved = userSlots.map { slot ->
             val comboKey = ComboKey.of(slot.categoryCodes)
-            // 에디션은 슬롯 '등록 다음날'부터 노출 — 등록 당일/이후 발송분은 보여주지 않는다.
-            val createdDate = slot.createdAt?.let { LocalDate.ofInstant(it, zone) }
-            val edition = if (createdDate != null && !createdDate.isBefore(today)) {
-                null
-            } else {
-                editions.findByKey(comboKey, user.outputLanguage, today)
-                    ?: editions.findLatestBefore(comboKey, user.outputLanguage, today)
-            }
+            // 슬롯 등록 당일부터 노출 — 에디션은 (comboKey, language, issueDate) 단위 공유이므로
+            // 오늘 발송분이 있으면 신규 가입 당일에도 바로 보여주고, 아직 없으면 직전 발송분으로 폴백한다.
+            val edition = editions.findByKey(comboKey, user.outputLanguage, today)
+                ?: editions.findLatestBefore(comboKey, user.outputLanguage, today)
             Triple(slot, comboKey, edition)
         }
         // 오늘치가 없는 슬롯이 하나라도 있으면(직전분 표시 또는 없음) "준비 중" 안내(FR-016)

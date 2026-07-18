@@ -32,9 +32,8 @@ class EditionReadIT : IntegrationTest() {
     @Test
     fun `오늘 발송분을 슬롯별로 보여주고 상세에서 3요소를 반환한다`() {
         val user = auth.signup(AuthController.SignupRequest("bobby", "password123", "밥"))
-        val s = slot.create(user.userId, SlotController.CreateSlotRequest(listOf("politics", "economy")))
-        // 에디션은 슬롯 등록 '다음날'부터 노출 → 어제 등록한 것으로 백데이트해야 오늘 발송분이 보인다.
-        jdbc.update("UPDATE slots SET created_at = now() - interval '1 day' WHERE id = ?", s.id)
+        // 슬롯 등록 당일부터 오늘 발송분 노출(신규 가입 당일 열람) — 백데이트 없이 오늘 등록 그대로 검증.
+        slot.create(user.userId, SlotController.CreateSlotRequest(listOf("politics", "economy")))
 
         val today = LocalDate.now(ZoneId.of("Asia/Seoul")) // 기본 사용자 타임존(원칙 XI) — today()와 동일 기준
         val comboKey = ComboKey.of(listOf("politics", "economy"))
