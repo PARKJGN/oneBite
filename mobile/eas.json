@@ -15,10 +15,34 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_ONEBITE_API_URL": "https://onebite.jgbak-land.com/api",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "390882101757-v35ke1buk70dlm21orckeikuho2u6fdj.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "390882101757-7f3qvfaqj3iq8939s6be9a84jami0hkd.apps.googleusercontent.com",
+        "EXPO_PUBLIC_NAVER_CLIENT_ID": "8riW8gG8KX7xJb5IldRF"
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_ONEBITE_API_URL": "https://onebite.jgbak-land.com/api",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "390882101757-v35ke1buk70dlm21orckeikuho2u6fdj.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "390882101757-7f3qvfaqj3iq8939s6be9a84jami0hkd.apps.googleusercontent.com",
+        "EXPO_PUBLIC_NAVER_CLIENT_ID": "8riW8gG8KX7xJb5IldRF"
+      }
+    },
+    "simulator": {
+      "environment": "preview",
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "EXPO_PUBLIC_ONEBITE_API_URL": "https://onebite.jgbak-land.com/api",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "390882101757-v35ke1buk70dlm21orckeikuho2u6fdj.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "390882101757-7f3qvfaqj3iq8939s6be9a84jami0hkd.apps.googleusercontent.com",
+        "EXPO_PUBLIC_NAVER_CLIENT_ID": "8riW8gG8KX7xJb5IldRF"
+      }
     }
   },
   "submit": {
