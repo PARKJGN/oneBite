@@ -1,6 +1,6 @@
 import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
 import NaverLogin from '@react-native-seoul/naver-login';
-import { login as kakaoLoginNative } from '@react-native-seoul/kakao-login';
+import { login as kakaoLoginNative, logout as kakaoLogoutNative } from '@react-native-seoul/kakao-login';
 
 export type SocialProvider = 'google' | 'naver' | 'kakao';
 
@@ -53,4 +53,22 @@ export async function signInWithKakao(): Promise<string> {
   const token = await kakaoLoginNative();
   if (!token?.accessToken) throw new Error('kakao_login_failed');
   return token.accessToken;
+}
+
+/**
+ * 앱 로그아웃 시 소셜 SDK 토큰도 함께 정리한다.
+ * 이걸 안 하면 로그아웃해도 SDK에 토큰이 남아 같은 계정으로 즉시 재로그인되고,
+ * 사용자가 앱 안에서 계정을 바꿀 방법이 없어진다(공용 기기면 앞사람 계정으로 들어간다).
+ *
+ * 제공자별로 독립 실행한다 — 한 곳이 실패해도 나머지는 정리되어야 하고,
+ * 애초에 그 제공자로 로그인한 적이 없으면(초기화 전) 던지는 것이 정상이다.
+ * 브라우저 쿠키(iOS는 Safari 세션 공유)까지는 지울 수 없어 계정 선택 화면이
+ * 안 뜰 수 있다. 그 경우 브라우저에서 직접 로그아웃해야 한다.
+ */
+export async function signOutSocial(): Promise<void> {
+  await Promise.allSettled([
+    GoogleSignin.signOut(),
+    NaverLogin.logout(),
+    kakaoLogoutNative(),
+  ]);
 }

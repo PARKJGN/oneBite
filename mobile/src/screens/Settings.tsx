@@ -4,6 +4,7 @@ import { useMe, useDeleteAccount } from '../api/account';
 import { useSession } from '../store/session';
 import { openOsSettings } from '../lib/permission';
 import { openLegal, PRIVACY_URL, TERMS_URL } from '../lib/legal';
+import { signOutSocial } from '../lib/social';
 import { colors, radius } from '../theme';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -27,12 +28,16 @@ export default function Settings({ navigation }: any) {
 
   const toLogin = () => navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
 
-  const onLogout = () => { clear(); toLogin(); };
+  // 소셜 SDK 토큰까지 지워야 다음 로그인에서 계정을 다시 고를 수 있다.
+  // SDK 정리를 기다리다 화면 전환이 늦어지지 않도록 로컬 세션부터 끊는다.
+  const signOutAll = () => { clear(); toLogin(); void signOutSocial(); };
+
+  const onLogout = signOutAll;
 
   const onDelete = () =>
     Alert.alert('회원 탈퇴', '개인정보·슬롯·읽음/책갈피가 삭제됩니다. (받은 뉴스 요약 본문은 익명 보존)\n탈퇴할까요?', [
       { text: '취소', style: 'cancel' },
-      { text: '탈퇴', style: 'destructive', onPress: () => deleteAccount.mutate(undefined, { onSuccess: () => { clear(); toLogin(); } }) },
+      { text: '탈퇴', style: 'destructive', onPress: () => deleteAccount.mutate(undefined, { onSuccess: signOutAll }) },
     ]);
 
   return (

@@ -11,3 +11,5 @@ export async function signInWithKakao(): Promise<string> {
 export async function signInWithNaver(): Promise<string> {
   return 'dev-naver-uid:테스터';
 }
+// 네이티브 SDK가 없어 지울 토큰도 없다. 호출부(Settings)가 플랫폼을 분기하지 않도록 시그니처만 맞춘다.
+export async function signOutSocial(): Promise<void> {}
