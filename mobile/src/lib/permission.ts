@@ -15,14 +15,24 @@ export function registerNativePermissionRequest(fn: () => Promise<PermissionStat
   nativeRequest = fn;
 }
 
-// 권한을 요청하고 결과를 서버에 동기화(서버 동의 게이트 반영, FR-010).
-export async function requestPushPermission(): Promise<PermissionStatus> {
-  const status = await nativeRequest();
+/**
+ * OS 권한 상태를 서버에 반영(FR-010).
+ * 발송 대상 선정이 이 값을 쓰므로(EditionPersistenceAdapter 의 findByPushPermission("granted")),
+ * 동기화가 빠지면 사용자가 권한을 허용해도 8시 푸시 대상에서 제외된다.
+ * 실패는 조용히 무시한다 — 앱을 다시 켤 때 재동기화된다.
+ */
+export async function syncPushPermission(status: PermissionStatus): Promise<void> {
   try {
     await api.patch('/me', { pushPermission: status });
   } catch {
-    // 동기화 실패는 조용히 무시(다음 기회에 재동기화)
+    // 무시
   }
+}
+
+// 권한을 요청하고 결과를 서버에 동기화(서버 동의 게이트 반영, FR-010).
+export async function requestPushPermission(): Promise<PermissionStatus> {
+  const status = await nativeRequest();
+  await syncPushPermission(status);
   return status;
 }
 

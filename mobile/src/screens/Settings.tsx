@@ -21,6 +21,14 @@ const Row = ({ children }: { children: React.ReactNode }) => (
   <View style={{ padding: 14, borderBottomWidth: 1, borderBottomColor: '#eef2ee' }}>{children}</View>
 );
 
+// 서버가 주는 원시값(granted|denied|unknown)을 그대로 보여주지 않는다.
+// unknown 은 "아직 서버에 동기화되지 않음"이라 사용자에겐 미설정으로 읽히는 게 맞다.
+const PUSH_LABEL: Record<string, string> = {
+  granted: '허용',
+  denied: '거부',
+  unknown: '미설정',
+};
+
 export default function Settings({ navigation }: any) {
   const me = useMe();
   const clear = useSession((s) => s.clear);
@@ -53,7 +61,7 @@ export default function Settings({ navigation }: any) {
       </Section>
 
       <Section title="알림">
-        <Row><Text style={{ color: colors.ink }}>푸시 권한  ·  {me.data?.pushPermission ?? 'unknown'}</Text></Row>
+        <Row><Text style={{ color: colors.ink }}>푸시 알림  ·  {PUSH_LABEL[me.data?.pushPermission ?? 'unknown'] ?? '확인 중'}</Text></Row>
         <TouchableOpacity onPress={openOsSettings} style={{ padding: 14 }}>
           <Text style={{ color: colors.green, fontWeight: '600' }}>기기 알림 설정 열기</Text>
         </TouchableOpacity>

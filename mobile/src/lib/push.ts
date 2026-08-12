@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { api } from '../api/client';
+import { syncPushPermission } from './permission';
 import { handlePushData, PushData } from './nav';
 
 // nav.ts로 이동한 항목들의 재노출(기존 import 경로 호환)
@@ -30,6 +31,10 @@ export async function registerForPushNotifications(): Promise<void> {
     if (status !== 'granted') {
       status = (await Notifications.requestPermissionsAsync()).status;
     }
+    // 실제 OS 상태를 매 실행마다 서버와 맞춘다. 이게 없으면 서버가 unknown 으로 남아
+    // 발송 대상에서 빠지고, OS 설정에서 나중에 켜고 끈 것도 반영되지 않는다.
+    await syncPushPermission(status === 'granted' ? 'granted' : 'denied');
+
     if (status !== 'granted') return; // 거부 시 기능 차단 없이 종료(원칙 III)
 
     const deviceToken = await Notifications.getDevicePushTokenAsync(); // 원시 FCM/APNs 토큰
