@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useToday, useYesterday, useCategories, type TodaySlot } from '@/lib/hooks';
 import { useEat } from '@/lib/useEat';
 import { EditionThumb } from '@/components/EditionThumb';
@@ -32,6 +33,9 @@ export default function TodayPage() {
   const yest = useYesterday(page);
   const categories = useCategories();
   const catName = (code: string) => categories.data?.find((c) => c.code === code)?.name ?? code;
+  const router = useRouter();
+  // 로딩 중에는 빈 상태가 깜빡이지 않도록 데이터가 온 뒤에만 판정
+  const noSlots = today.data != null && today.data.slots.length === 0;
 
   return (
     <>
@@ -43,12 +47,25 @@ export default function TodayPage() {
           <div className="mt-4 rounded-md bg-cloud p-3 text-sm text-forest">{today.data.banner}</div>
         )}
 
-        <div className="mt-5 flex flex-col gap-3">
-          {today.isLoading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-24 w-full" />)}
-          {today.data?.slots.map((s) => (
-            <TodaySlotCard key={s.comboKey} slot={s} />
-          ))}
-        </div>
+        {/* 슬롯 미구성 안내(US1 인수 2) — 슬롯이 없으면 발송 대상이 아니라 이 화면이 영원히 빈다.
+            today.slots 는 활성 슬롯과 1:1 이므로 별도 조회 없이 판별한다. */}
+        {noSlots ? (
+          <div className="mt-5 rounded-md border border-pine/30 bg-cloud p-5">
+            <h2 className="text-lg font-bold text-ink">아직 슬롯이 없어요</h2>
+            <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+              관심 카테고리를 묶어 슬롯을 만들면 오늘 발송분부터 바로 볼 수 있어요.
+              이후 매일 아침 8시에 새 뉴스레터가 도착합니다.
+            </p>
+            <Button className="mt-4 w-full" onClick={() => router.push('/onboard')}>슬롯 만들기</Button>
+          </div>
+        ) : (
+          <div className="mt-5 flex flex-col gap-3">
+            {today.isLoading && [0, 1, 2].map((i) => <Skeleton key={i} className="h-24 w-full" />)}
+            {today.data?.slots.map((s) => (
+              <TodaySlotCard key={s.comboKey} slot={s} />
+            ))}
+          </div>
+        )}
 
         {/* 어제 핵심 뉴스 — 5개씩 페이지네이션 */}
         <section className="mt-10">

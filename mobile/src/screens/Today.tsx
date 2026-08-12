@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
+import { Animated, Pressable, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useToday } from '../api/today';
 import { useYesterdayHighlights } from '../api/home';
 import { useCategories } from '../api/slots';
@@ -42,6 +42,8 @@ export default function Today({ navigation }: any) {
   const openEdition = (id: number | null) => { if (id != null) navigation.navigate('EditionDetail', { id }); };
   // 읽을 에디션이 하나라도 있으면 "준비 중" 배너는 숨김(슬롯별 카드가 개별 상태 표시)
   const anyReady = today.data?.slots.some((s) => s.editionId != null) ?? false;
+  // 로딩 중에는 빈 상태가 깜빡이지 않도록 데이터가 온 뒤에만 판정
+  const noSlots = today.data != null && today.data.slots.length === 0;
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ padding: 22, paddingTop: 16 }}>
@@ -56,11 +58,27 @@ export default function Today({ navigation }: any) {
         </View>
       ) : null}
 
-      <View style={{ marginTop: 14, gap: 12 }}>
-        {today.data?.slots.map((s) => (
-          <TodaySlotCard key={s.comboKey} slot={s} onOpen={openEdition} />
-        ))}
-      </View>
+      {/* 슬롯 미구성 안내(US1 인수 2) — 슬롯이 없으면 발송 대상이 아니라 이 화면이 영원히 빈다.
+          today.slots 는 활성 슬롯과 1:1 이므로 별도 조회 없이 판별한다. */}
+      {noSlots ? (
+        <View style={{ marginTop: 14, padding: 20, backgroundColor: colors.greenSoft, borderWidth: 1, borderColor: '#aecbb8', borderRadius: radius.md }}>
+          <Text style={{ fontSize: 17, fontWeight: '700', color: colors.ink }}>아직 슬롯이 없어요</Text>
+          <Text style={{ fontSize: 14, color: colors.inkSoft, marginTop: 8, lineHeight: 21 }}>
+            관심 카테고리를 묶어 슬롯을 만들면 오늘 발송분부터 바로 볼 수 있어요.
+            이후 매일 아침 8시에 새 뉴스레터가 도착합니다.
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Onboard')}
+            style={{ marginTop: 16, paddingVertical: 13, backgroundColor: colors.green, borderRadius: radius.md, alignItems: 'center' }}>
+            <Text style={{ fontSize: 15, fontWeight: '600', color: '#ffffff' }}>슬롯 만들기</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={{ marginTop: 14, gap: 12 }}>
+          {today.data?.slots.map((s) => (
+            <TodaySlotCard key={s.comboKey} slot={s} onOpen={openEdition} />
+          ))}
+        </View>
+      )}
 
       {/* 어제 핵심 뉴스 — 5개씩 페이지네이션 */}
       <View style={{ marginTop: 26 }}>
