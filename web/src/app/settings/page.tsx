@@ -67,6 +67,7 @@ export default function SettingsPage() {
 
         <Section title="정보">
           <div className="p-4 text-ink-soft">버전 1.0.0</div>
+          <Link href="/support" className="block p-4 font-semibold text-ink">도움말 · 문의</Link>
           <Link href="/terms" className="block p-4 font-semibold text-ink">이용약관</Link>
           <Link href="/privacy" className="block p-4 font-semibold text-ink">개인정보처리방침</Link>
         </Section>

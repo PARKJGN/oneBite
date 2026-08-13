@@ -19,13 +19,22 @@ const PROSE = [
   '[&_a]:font-semibold [&_a]:text-pine [&_a]:underline',
 ].join(' ');
 
-export function LegalPage({ title, children }: { title: string; children: React.ReactNode }) {
+export function LegalPage({
+  title,
+  children,
+  // 시행일은 약관·방침처럼 효력 개시일이 있는 문서에만 의미가 있다(지원 페이지에는 붙이지 않는다).
+  showEffectiveDate = true,
+}: {
+  title: string;
+  children: React.ReactNode;
+  showEffectiveDate?: boolean;
+}) {
   return (
     <main className="container max-w-2xl py-10">
       <Link href="/" className="text-sm font-semibold text-pine">← oneBite</Link>
 
       <h1 className="mt-4 text-2xl font-bold text-ink">{title}</h1>
-      <p className="mt-2 text-xs font-semibold text-ink-faint">시행일 {EFFECTIVE_DATE}</p>
+      {showEffectiveDate && <p className="mt-2 text-xs font-semibold text-ink-faint">시행일 {EFFECTIVE_DATE}</p>}
 
       <div className={PROSE}>{children}</div>
 

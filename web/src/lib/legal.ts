@@ -13,3 +13,5 @@ export const EFFECTIVE_DATE = '2026년 7월 10일';
 export const PRIVACY_URL = 'https://onebite.jgbak-land.com/privacy';
 export const TERMS_URL = 'https://onebite.jgbak-land.com/terms';
 export const ACCOUNT_DELETION_URL = 'https://onebite.jgbak-land.com/account-deletion';
+/** App Store Connect 의 "지원 URL"(필수). 심사자가 실제로 열어본다. */
+export const SUPPORT_URL = 'https://onebite.jgbak-land.com/support';

@@ -8,7 +8,7 @@ import { useSession, useSessionHydrated } from '@/store/session';
 // 인증 화면과, 스토어 심사자가 비로그인으로 방문하는 법적 고지 문서에서는 숨긴다.
 const NO_NAV = [
   '/login', '/signup', '/onboard', '/oauth', '/reset',
-  '/privacy', '/terms', '/account-deletion',
+  '/privacy', '/terms', '/account-deletion', '/support',
 ];
 
 export function AppChrome() {

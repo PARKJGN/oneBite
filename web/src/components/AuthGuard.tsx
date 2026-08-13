@@ -5,7 +5,7 @@ import { useSession, useSessionHydrated } from '@/store/session';
 
 // 로그인 없이 접근 가능한 라우트.
 // /onboard 는 가입·소셜 로그인 직후(세션 보유) 에만 도달하므로 보호 대상에 둔다.
-const PUBLIC = ['/login', '/signup', '/oauth', '/reset', '/privacy', '/terms', '/account-deletion'];
+const PUBLIC = ['/login', '/signup', '/oauth', '/reset', '/privacy', '/terms', '/account-deletion', '/support'];
 
 const isPublicPath = (path: string) =>
   PUBLIC.some((p) => path === p || path.startsWith(p + '/'));

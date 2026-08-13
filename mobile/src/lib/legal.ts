@@ -10,6 +10,7 @@ const WEB_ORIGIN = process.env.EXPO_PUBLIC_ONEBITE_WEB_URL ?? 'https://onebite.j
 export const TERMS_URL = `${WEB_ORIGIN}/terms`;
 export const PRIVACY_URL = `${WEB_ORIGIN}/privacy`;
 export const ACCOUNT_DELETION_URL = `${WEB_ORIGIN}/account-deletion`;
+export const SUPPORT_URL = `${WEB_ORIGIN}/support`;
 
 export async function openLegal(url: string) {
   try {
